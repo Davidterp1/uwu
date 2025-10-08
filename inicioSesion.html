@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/jpeg" href="./earth.jpg">
+
+<link rel=stylesheet href="style.css">
+<!-- Importa mapa para Three.js modulo -->
+</head>
+<body>
+    <nav class="navbar">
+   
+        <a href="index.html">Inicio</a>
+        <a href="registro.html">Registro</a>
+        <a href="inicioSesion.html">Inicio de sesión</a>
+      
+        
+    </nav>
+    <audio src="inter.mp3" autoplay loop></audio>
+       <video id="background-video" autoplay loop muted >
+  <source src="uwu.mp4" type="video/mp4">
+</video>
+  <div id="login-container">
+    <h2>Iniciar Sesión</h2>
+    <form id="login-form">
+        <label for="username">Nombre de usuario:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Ingresar</button>
+    </form>
+</div>
+<script>
+      // Función para compensar el zoom del navegador
+      function compensateForZoom() {
+        const loginContainer = document.getElementById('login-container');
+        if (!loginContainer) return;
+
+        // Obtenemos el nivel de zoom del dispositivo/navegador
+        const zoomLevel = window.devicePixelRatio || 1;
+        // Calculamos el factor de escala inverso
+        const scaleFactor = 1 / zoomLevel;
+
+        // Aplicamos la transformación de escala, manteniendo el centrado original
+        loginContainer.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;   
+      }
+
+      // Ejecutamos la función al cargar y al redimensionar la ventana 
+      window.addEventListener('load', compensateForZoom);
+      window.addEventListener('resize', compensateForZoom);
+    </script>
+ 
+    
+</body>
+</html>

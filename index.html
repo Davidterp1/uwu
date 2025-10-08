@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Solar System 3D</title>
+<link rel="icon" type="image/jpeg" href="./earth.jpg">
+<link rel=stylesheet href="style.css">
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
+            "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/OrbitControls.js",
+            "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js"
+        }
+    }
+</script>
+</head>
+<body>
+  <audio src="inter.mp3" autoplay loop></audio>
+  <nav class="navbar">
+    <a href="index.html">Inicio</a>
+    <a href="registro.html">Registro</a>
+    <a href="inicioSesion.html">Inicio de sesión</a>
+  </nav>
+
+  <div id="info-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="planet-name"></h2>
+      <p id="planet-info"></p>
+    </div>
+  </div>
+  <div id="planet-stats">
+    <h3 id="stats-name">Selecciona un planeta</h3>
+    <p id="stats-distance">Distancia al Sol: -</p>
+    <p id="stats-speed">Velocidad orbital: -</p>
+  </div>
+  
+  <script type="module" src="script.js"></script>
+</body>
+</html>
