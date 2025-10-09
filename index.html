@@ -15,19 +15,34 @@
 </script>
 </head>
 <body>
-  <audio src="inter.mp3" autoplay loop ></audio>
-  <nav class="navbar">
-    
-    <a href="index.html">Inicio</a>
-    <a href="registro.html">Registro</a>
-    <a href="inicioSesion.html">Inicio de sesión</a>
-  </nav>
+  <audio src="inter.mp3" autoplay loop></audio>
+  <div class="menu-container">
+    <button class="menu-toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="dropdown-content">
+        <a href="index.html">Inicio</a>
+        <a href="registro.html">Registro</a>
+        <a href="inicioSesion.html">Inicio de sesión</a>
+    </div>
+  </div>
 
   <div id="info-modal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
       <h2 id="planet-name"></h2>
       <p id="planet-info"></p>
+    </div>
+  </div>
+
+  <div id="constellation-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="constellation-name"></h2>
+      <p id="constellation-info"></p>
+      <img id="constellation-image" src="" alt="Imagen de la constelación" style="width: 100%; border-radius: 5px; margin-top: 10px; display: none;"/>
     </div>
   </div>
   <div id="planet-stats">

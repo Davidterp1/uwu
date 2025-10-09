@@ -8,14 +8,19 @@
 <!-- Importa mapa para Three.js modulo -->
 </head>
 <body>
-    <nav class="navbar">
-   
+    <div class="menu-container">
+      <button class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="dropdown-content">
         <a href="index.html">Inicio</a>
         <a href="registro.html">Registro</a>
         <a href="inicioSesion.html">Inicio de sesión</a>
-      
-        
-    </nav>
+    </div>
+  </div>
+    </div>
     <audio src="inter.mp3" autoplay loop></audio>
        <video id="background-video" autoplay loop muted >
   <source src="uwu.mp4" type="video/mp4">
@@ -48,6 +53,26 @@
       // Ejecutamos la función al cargar y al redimensionar la ventana 
       window.addEventListener('load', compensateForZoom);
       window.addEventListener('resize', compensateForZoom);
+
+      // Lógica para el menú desplegable
+      function setupMainMenu() {
+        const toggleBtn = document.querySelector('.menu-toggle');
+        const content = document.querySelector('.dropdown-content');
+
+        if (!toggleBtn || !content) return;
+
+        toggleBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          content.classList.toggle('show');
+        });
+
+        window.addEventListener('click', (e) => {
+          if (content.classList.contains('show') && !toggleBtn.contains(e.target)) {
+            content.classList.remove('show');
+          }
+        });
+      }
+      setupMainMenu();
     </script>
  
     

@@ -13,16 +13,16 @@ const gltfLoader = new GLTFLoader();
 
 // ====== DATOS (sin cambios funcionales) ======
 const planets = [
-  { name: 'sol', mass: '1.989 × 10^30 kg', radius: '696,340 km', color: 0xFFFF00, size: 10, description: 'La estrella en el centro de nuestro sistema solar, compuesta principalmente de hidrógeno y helio.', rotationSpeed: 0.05, texture: getAssetUrl('./sun.jpg') },
-  { name: 'Mercurio', mass: '3.301 × 10^23 kg', radius: '2,439.7 km', color: 0x808080, size: 0.38, orbitRadius: 12, eccentricity: 0.4, description: 'El planeta más pequeño y cercano al Sol.', orbitalSpeed: 4.15, rotationSpeed: 0.1, texture: getAssetUrl('./mercury.jpg'), axialTilt: 0.03, composition: 'Rocoso', temperature: '167°C', atmosphere: 'Muy delgada (oxígeno, sodio, hidrógeno)', funFact: 'Un día en Mercurio (176 días terrestres) es más largo que su año (88 días terrestres).', exploration: 'Mariner 10, MESSENGER, BepiColombo.' },
+  { name: 'Sun', mass: '1.989 × 10^30 kg', radius: '696,340 km', color: 0xFFFF00, size: 10, description: 'La estrella en el centro de nuestro sistema solar, compuesta principalmente de hidrógeno y helio.', rotationSpeed: 0.05, texture: getAssetUrl('./sun.jpg') },
+  { name: 'Mercury', mass: '3.301 × 10^23 kg', radius: '2,439.7 km', color: 0x808080, size: 0.38, orbitRadius: 12, eccentricity: 0.4, description: 'El planeta más pequeño y cercano al Sol.', orbitalSpeed: 4.15, rotationSpeed: 0.1, texture: getAssetUrl('./mercury.jpg'), axialTilt: 0.03, composition: 'Rocoso', temperature: '167°C', atmosphere: 'Muy delgada (oxígeno, sodio, hidrógeno)', funFact: 'Un día en Mercurio (176 días terrestres) es más largo que su año (88 días terrestres).', exploration: 'Mariner 10, MESSENGER, BepiColombo.' },
   { name: 'Venus', mass: '4.867 × 10^24 kg', radius: '6,051.8 km', color: 0xF8E473, size: 0.95, orbitRadius: 15, eccentricity: 0.2, description: 'Planeta con una atmósfera densa y efecto invernadero extremo.', orbitalSpeed: 1.62, rotationSpeed: -0.05, texture: getAssetUrl('./venus.jpg'), axialTilt: 177.4, composition: 'Rocoso', temperature: '464°C', atmosphere: 'Densa (dióxido de carbono)', funFact: 'Gira en sentido contrario a la mayoría de los planetas (rotación retrógrada).', exploration: 'Venera, Magellan, Venus Express.' },
-  { name: 'Tierra', mass: '5.972 × 10^24 kg', radius: '6,371 km', color: 0x4682B4, size: 1.0, orbitRadius: 18, eccentricity: 0.3, description: 'Nuestro hogar, con vida y agua líquida.', orbitalSpeed: 1, rotationSpeed: 1, texture: getAssetUrl('./earth.jpg'), axialTilt: 23.44, composition: 'Rocoso', temperature: '15°C', atmosphere: 'Nitrógeno, Oxígeno', funFact: 'Es el único planeta conocido con vida.', satellites: '1 (La Luna)', exploration: '¡Estamos aquí!' },
-  { name: 'Marte', mass: '6.39 × 10^23 kg', radius: '3,389.5 km', color: 0xB22222, size: 0.53, orbitRadius: 22, eccentricity: 0.4, description: 'El Planeta Rojo, con casquetes polares y óxido de hierro.', orbitalSpeed: 0.53, rotationSpeed: 0.97, texture: getAssetUrl('./mars.jpg'), axialTilt: 25.19, composition: 'Rocoso', temperature: '-65°C', atmosphere: 'Delgada (dióxido de carbono)', funFact: 'Tiene el volcán más grande del sistema solar, el Monte Olimpo.', satellites: '2 (Fobos y Deimos)', exploration: 'Rovers (Curiosity, Perseverance), Viking.' },
+  { name: 'Earth', mass: '5.972 × 10^24 kg', radius: '6,371 km', color: 0x4682B4, size: 1.0, orbitRadius: 18, eccentricity: 0.3, description: 'Nuestro hogar, con vida y agua líquida.', orbitalSpeed: 1, rotationSpeed: 1, texture: getAssetUrl('./earth.jpg'), axialTilt: 23.44, composition: 'Rocoso', temperature: '15°C', atmosphere: 'Nitrógeno, Oxígeno', funFact: 'Es el único planeta conocido con vida.', satellites: '1 (La Luna)', exploration: '¡Estamos aquí!' },
+  { name: 'Mars', mass: '6.39 × 10^23 kg', radius: '3,389.5 km', color: 0xB22222, size: 0.53, orbitRadius: 22, eccentricity: 0.4, description: 'El Planeta Rojo, con casquetes polares y óxido de hierro.', orbitalSpeed: 0.53, rotationSpeed: 0.97, texture: getAssetUrl('./mars.jpg'), axialTilt: 25.19, composition: 'Rocoso', temperature: '-65°C', atmosphere: 'Delgada (dióxido de carbono)', funFact: 'Tiene el volcán más grande del sistema solar, el Monte Olimpo.', satellites: '2 (Fobos y Deimos)', exploration: 'Rovers (Curiosity, Perseverance), Viking.' },
   { name: 'Jupiter', mass: '1.898 × 10^27 kg', radius: '69,911 km', color: 0xD2B48C, size: 4.0, orbitRadius: 36, eccentricity: 0.2, description: 'El gigante gaseoso más grande, con su Gran Mancha Roja.', orbitalSpeed: 0.084, rotationSpeed: 2.4, texture: getAssetUrl('./Jupiter.png'), axialTilt: 3.13, composition: 'Gaseoso', temperature: '-110°C (nubes)', atmosphere: 'Hidrógeno, Helio', funFact: 'La Gran Mancha Roja es una tormenta más grande que la Tierra.', satellites: 'Más de 80 (Ío, Europa, Ganimedes, Calisto)', exploration: 'Voyager, Galileo, Juno.' },
-  { name: 'Saturno', mass: '5.683 × 10^26 kg', radius: '58,232 km', color: 0xDAA520, size: 3.5, orbitRadius: 48, eccentricity: 0.3, description: 'Famoso por sus anillos de hielo y roca.', ring: { innerRadius: 0.2, outerRadius: 1.2 }, orbitalSpeed: 0.034, rotationSpeed: 2.2, texture: getAssetUrl('./saturn.jpg'), ringTexture: getAssetUrl('./sring.png'), axialTilt: 26.73, composition: 'Gaseoso', temperature: '-140°C (nubes)', atmosphere: 'Hidrógeno, Helio', funFact: 'Es menos denso que el agua; si hubiera una bañera lo suficientemente grande, flotaría.', satellites: 'Más de 80 (Titán, Encélado)', exploration: 'Pioneer 11, Voyager, Cassini.' },
-  { name: 'Urano', mass: '8.681 × 10^25 kg', radius: '25,362 km', color: 0xADD8E6, size: 2.0, orbitRadius: 57, eccentricity: 0.4, description: 'Un gigante de hielo con rotación lateral.', ring: { innerRadius: 0.1, outerRadius: 0.4 }, orbitalSpeed: 0.012, rotationSpeed: -1.4, texture: getAssetUrl('./uranus.jpg'), ringTexture: getAssetUrl('./uring.png'), axialTilt: 97.77, composition: 'Gigante de hielo', temperature: '-195°C (nubes)', atmosphere: 'Hidrógeno, Helio, Metano', funFact: 'Gira de lado, con su eje de rotación casi paralelo al plano de su órbita.', satellites: '27 conocidos', exploration: 'Voyager 2.' },
-  { name: 'Neptuno', mass: '1.024 × 10^26 kg', radius: '24,622 km', color: 0x00008B, size: 1.9, orbitRadius: 67, eccentricity: 0.2, description: 'El planeta más distante, frío y ventoso.', orbitalSpeed: 0.006, rotationSpeed: 1.5, texture: getAssetUrl('./neptune.jpg'), axialTilt: 28.32, composition: 'Gigante de hielo', temperature: '-200°C (nubes)', atmosphere: 'Hidrógeno, Helio, Metano', funFact: 'Tiene los vientos más rápidos del sistema solar (hasta 2,100 km/h).', satellites: '14 conocidos', exploration: 'Voyager 2.' },
-  { name: 'Pluton', mass: '1.309 × 10^22 kg', radius: '1,188.3 km', color: 0xA52A2A, size: 0.2, orbitRadius: 77, eccentricity: 0.6, description: 'Planeta enano helado del Cinturón de Kuiper.', orbitalSpeed: 0.004, rotationSpeed: 0.15, texture: getAssetUrl('./pluto.png'), axialTilt: 122.53, composition: 'Helado', temperature: '-229°C', atmosphere: 'Delgada (nitrógeno, metano)', funFact: 'Tiene una gran región en forma de corazón en su superficie.', satellites: '5 (Caronte)', exploration: 'New Horizons.' },
+  { name: 'Saturn', mass: '5.683 × 10^26 kg', radius: '58,232 km', color: 0xDAA520, size: 3.5, orbitRadius: 48, eccentricity: 0.3, description: 'Famoso por sus anillos de hielo y roca.', ring: { innerRadius: 0.2, outerRadius: 1.2 }, orbitalSpeed: 0.034, rotationSpeed: 2.2, texture: getAssetUrl('./saturn.jpg'), ringTexture: getAssetUrl('./sring.png'), axialTilt: 26.73, composition: 'Gaseoso', temperature: '-140°C (nubes)', atmosphere: 'Hidrógeno, Helio', funFact: 'Es menos denso que el agua; si hubiera una bañera lo suficientemente grande, flotaría.', satellites: 'Más de 80 (Titán, Encélado)', exploration: 'Pioneer 11, Voyager, Cassini.' },
+  { name: 'Uranus', mass: '8.681 × 10^25 kg', radius: '25,362 km', color: 0xADD8E6, size: 2.0, orbitRadius: 57, eccentricity: 0.4, description: 'Un gigante de hielo con rotación lateral.', ring: { innerRadius: 0.1, outerRadius: 0.4 }, orbitalSpeed: 0.012, rotationSpeed: -1.4, texture: getAssetUrl('./uranus.jpg'), ringTexture: getAssetUrl('./uring.png'), axialTilt: 97.77, composition: 'Gigante de hielo', temperature: '-195°C (nubes)', atmosphere: 'Hidrógeno, Helio, Metano', funFact: 'Gira de lado, con su eje de rotación casi paralelo al plano de su órbita.', satellites: '27 conocidos', exploration: 'Voyager 2.' },
+  { name: 'Neptune', mass: '1.024 × 10^26 kg', radius: '24,622 km', color: 0x00008B, size: 1.9, orbitRadius: 67, eccentricity: 0.2, description: 'El planeta más distante, frío y ventoso.', orbitalSpeed: 0.006, rotationSpeed: 1.5, texture: getAssetUrl('./neptune.jpg'), axialTilt: 28.32, composition: 'Gigante de hielo', temperature: '-200°C (nubes)', atmosphere: 'Hidrógeno, Helio, Metano', funFact: 'Tiene los vientos más rápidos del sistema solar (hasta 2,100 km/h).', satellites: '14 conocidos', exploration: 'Voyager 2.' },
+  { name: 'Pluto', mass: '1.309 × 10^22 kg', radius: '1,188.3 km', color: 0xA52A2A, size: 0.2, orbitRadius: 77, eccentricity: 0.6, description: 'Planeta enano helado del Cinturón de Kuiper.', orbitalSpeed: 0.004, rotationSpeed: 0.15, texture: getAssetUrl('./pluto.png'), axialTilt: 122.53, composition: 'Helado', temperature: '-229°C', atmosphere: 'Delgada (nitrógeno, metano)', funFact: 'Tiene una gran región en forma de corazón en su superficie.', satellites: '5 (Caronte)', exploration: 'New Horizons.' },
 ];
 
 const moonData = { name: 'Moon', mass: '7.342 × 10^22 kg', radius: '1,737.4 km', color: 0xD3D3D3, size: 0.27, orbitRadius: 1.5, description: 'El satélite natural de la Tierra.', texture: getAssetUrl('./moon.jpg'), composition: 'Rocoso', temperature: '-20°C', atmosphere: 'Casi inexistente', funFact: 'No tiene luz propia, refleja la del Sol.', exploration: 'Misiones Apolo, Luna, Chang\'e.' };
@@ -292,12 +292,19 @@ for (let i = 0; i < cometCount; i++) {
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const modal = document.getElementById('info-modal');
-const closeBtn = document.querySelector('.modal .close');
+const closeBtn = document.querySelector('#info-modal .close');
 const statsNameEl = document.getElementById('stats-name');
 const statsDistanceEl = document.getElementById('stats-distance');
 const statsSpeedEl = document.getElementById('stats-speed');
 const planetNameEl = document.getElementById('planet-name');
 const planetInfoEl = document.getElementById('planet-info');
+
+// Modal de constelaciones y API Key
+const constellationModal = document.getElementById('constellation-modal');
+const constellationNameEl = document.getElementById('constellation-name');
+const constellationInfoEl = document.getElementById('constellation-info');
+const constellationImageEl = document.getElementById('constellation-image');
+const constellationCloseBtn = document.querySelector('#constellation-modal .close');
 
 let followTarget = null;
 const zoomOffset = new THREE.Vector3(0, 2, 10);
@@ -315,7 +322,7 @@ function updatePlanetStats(planetMesh, planetData) {
   const distance = planetPos.distanceTo(sunPos);
   const speed = (planetData.orbitalSpeed || 0) * (planetData.orbitRadius || 1);
   statsNameEl.textContent = planetData.name;
-  statsDistanceEl.textContent = `Distancia al Sol: ${distance.toFixed(2)} unidades astronomicas`;
+  statsDistanceEl.textContent = `Distancia al Sol: ${distance.toFixed(2)} unidades`;
   statsSpeedEl.textContent = `Velocidad orbital: ${speed.toFixed(3)} rad/unidad de tiempo`;
 }
 
@@ -330,17 +337,14 @@ function formatExtraInfo(planetData) {
   return out;
 }
 
-function onPlanetClick(event) {
+async function onSceneClick(event) {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
+  // Ajustar el umbral del raycaster para líneas
+  raycaster.params.Line.threshold = 3;
 
-  // objetos clicables: planetMeshes, sun y la luna si existe
-  const clickable = planetMeshes.slice();
-  clickable.push(sun);
-  if (scene.userData._moon) clickable.push(scene.userData._moon);
-
-  const intersects = raycaster.intersectObjects(clickable);
+  const intersects = raycaster.intersectObjects(scene.children, true);
   if (intersects.length === 0) return;
 
   const clicked = intersects[0].object;
@@ -348,28 +352,38 @@ function onPlanetClick(event) {
 
   let targetGroup = null;
   if (clicked === sun) targetGroup = sun;
-  else if (scene.userData._moon && clicked === scene.userData._moon) targetGroup = scene.userData._moonGroup;
-  else {
+  else if (scene.userData._moon && clicked === scene.userData._moon) {
+    targetGroup = scene.userData._moonGroup;
+  } else {
     const idx = planetMeshes.indexOf(clicked);
     if (idx >= 0) targetGroup = planetGroups[idx];
   }
 
   if (targetGroup) {
+    // Clic en un planeta/sol/luna
     followTarget = targetGroup;
     controls.enabled = false;
-  }
 
-  planetNameEl.textContent = planetData.name || 'Objeto';
-  planetInfoEl.innerHTML = `
-    <strong>Mass:</strong> ${planetData.mass || '-'}<br>
-    <strong>Radius:</strong> ${planetData.radius || '-'}<br>
-    <br><span class="description">${planetData.description || ''}</span><br><br>
-    ${formatExtraInfo(planetData)}
-  `;
-  modal.style.display = 'block';
+    planetNameEl.textContent = planetData.name || 'Objeto';
+    planetInfoEl.innerHTML = `
+      <strong>Mass:</strong> ${planetData.mass || '-'}<br>
+      <strong>Radius:</strong> ${planetData.radius || '-'}<br>
+      <br><span class="description">${planetData.description || ''}</span><br><br>
+      ${formatExtraInfo(planetData)}
+    `;
+    modal.style.display = 'block';
+  } else if (clicked.parent === constellationGroup && clicked.userData.name) {
+    // Clic en una constelación
+    const constName = clicked.userData.name;
+    constellationNameEl.textContent = constName;
+    constellationInfoEl.innerHTML = 'Aquí podría ir información local sobre la constelación.'; // Texto de ejemplo
+    constellationImageEl.style.display = 'none';
+    constellationImageEl.src = '';
+    constellationModal.style.display = 'block';
+  }
 }
 
-window.addEventListener('click', onPlanetClick);
+window.addEventListener('click', onSceneClick);
 
 function exitFollowMode() {
   modal.style.display = 'none';
@@ -377,8 +391,17 @@ function exitFollowMode() {
   controls.enabled = true;
   updatePlanetStats(null, null);
 }
+
+function closeConstellationModal() {
+    constellationModal.style.display = 'none';
+}
+
 closeBtn.addEventListener('click', exitFollowMode);
-window.addEventListener('click', (e) => { if (e.target === modal) exitFollowMode(); });
+constellationCloseBtn.addEventListener('click', closeConstellationModal);
+window.addEventListener('click', (e) => { 
+    if (e.target === modal) exitFollowMode(); 
+    if (e.target === constellationModal) closeConstellationModal();
+});
 
 // ====== CONSTELACIONES ======
 const CONSTELLATION_RADIUS = 2000; // radio de la "esfera celeste" (ajústalo si quieres)
@@ -672,6 +695,26 @@ function createConstellationMenuUI() {
   });
 }
 createConstellationMenuUI();
+
+// ====== Dropdown de Navegación Principal ======
+function setupMainMenu() {
+  const toggleBtn = document.querySelector('.menu-toggle');
+  const content = document.querySelector('.dropdown-content');
+
+  if (!toggleBtn || !content) return;
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    content.classList.toggle('show');
+  });
+
+  window.addEventListener('click', (e) => {
+    if (content.classList.contains('show') && !toggleBtn.contains(e.target)) {
+      content.classList.remove('show');
+    }
+  });
+}
+setupMainMenu();
 
 // ====== FIN CONSTELACIONES ======
 animate();

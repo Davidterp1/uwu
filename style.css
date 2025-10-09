@@ -30,18 +30,31 @@ body {
 }
 
 .modal-content {
-  background-color: rgba(51, 51, 51, 0.8); 
-  backdrop-filter: blur(5px); /* Efecto de desenfoque para el fondo */
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
   color: #f1f1f1; 
   position: absolute;
-  right: 20px;
+  left: 20px;
   top: 50%;
   transform: translateY(-50%);
   padding: 20px;
-  border: 1px solid #555;
+  border: 1px solid rgba(0, 191, 255, 0.5);
   width: 300px;
   border-radius: 10px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
+}
+
+/* Estilo específico para el modal de constelaciones, para que aparezca a la izquierda */
+#constellation-modal .modal-content {
+  right: auto; /* Quitamos el posicionamiento a la derecha */
+  left: 20px; /* Lo posicionamos a la izquierda */
+}
+
+/* Estilo para la imagen dentro del modal de constelación */
+#constellation-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
 }
 
 .close {
@@ -64,29 +77,90 @@ body {
   color: #ddd;
 }
 
-.navbar a {
-  display: inline-block;
-  font-family: "Space Age", sans-serif;
-  font-size: 20px;
-  color: #ccc;
-  
-  text-decoration: none;
-}
-
-.navbar {
+/* ====== Menú Desplegable Futurista ====== */
+.menu-container {
   position: fixed;
-  background-color: transparent;
-  color: #ccc;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 20px;
   top: 10px;
   right: 20px;
-  width: 100%;
+  z-index: 1001; /* Asegura que esté sobre otros elementos */
+}
 
+.menu-toggle {
+  width: 50px;
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 191, 255, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 6px;
+  box-shadow: 0 0 10px rgba(0, 191, 255, 0.5), inset 0 0 5px rgba(0, 191, 255, 0.3);
+  transition: box-shadow 0.3s, background-color 0.3s;
+}
 
-          
+.menu-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.8), inset 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.menu-toggle span {
+  width: 80%;
+  height: 2px;
+  background-color: #00bfff;
+  border-radius: 2px;
+  transition: background-color 0.3s;
+}
+
+.menu-toggle:hover span {
+  background-color: #fff;
+}
+
+.dropdown-content {
+  display: none; /* Se gestiona con JS */
+  position: absolute;
+  right: 0;
+  top: 120%; /* Un poco más abajo */
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  min-width: 180px;
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
+  border: 1px solid rgba(0, 191, 255, 0.5);
+  z-index: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.dropdown-content.show { 
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-content a {
+  font-family: "Space Age", sans-serif;
+  color: white;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+  transition: background-color 0.3s, border-color 0.3s;
+  border-bottom: 1px solid rgba(0, 191, 255, 0.2); /* Borde sutil */
+}
+
+.dropdown-content a:hover {
+  background-color: rgba(0, 191, 255, 0.3);
+  border-color: rgba(0, 191, 255, 0.5); /* El borde se ilumina un poco */
+}
+
+/* Quitar el borde del último elemento para un acabado limpio */
+.dropdown-content a:last-child {
+  border-bottom: none;
 }
 
 @font-face {
@@ -95,6 +169,7 @@ body {
   /* Asumo que está en una carpeta 'fonts'. */
   src: url("./space\ age.ttf");
 }
+
 
 #login-container {
   position: absolute;
@@ -109,7 +184,6 @@ body {
   color: #f1f1f1;
   box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
 }
-
 
 #login-container h2, #register-container h2 {
   text-align: center;
@@ -165,19 +239,35 @@ video {
 
 #planet-stats {
     position: fixed;
-    top: 10px;
-    left: 10px;
-    
-    background: rgba(0,0,0,0.5);
-    padding: 1px;
+    top: 20px;
+    left: 20px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    padding: 10px 15px;
     color: white;
     font-family: 'Space Age', sans-serif;
     border-radius: 8px;
-    font-size: 1.1em;
-  
+    font-size: 1em;
+    border: 1px solid rgba(0, 191, 255, 0.5);
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
     z-index: 20;
+    min-width: 250px;
 }
 
+#planet-stats h3 {
+    margin: 0 0 8px 0;
+    padding: 0;
+    font-size: 1.2em;
+    color: #00bfff;
+    text-shadow: 0 0 5px rgba(0, 191, 255, 0.7);
+}
+
+#planet-stats p {
+    margin: 4px 0;
+    padding: 0;
+    font-size: 0.9em;
+    color: #f1f1f1;
+}
 /* ====== Menú de Constelaciones ====== */
 .constellation-menu-container {
   position: fixed;
@@ -188,14 +278,21 @@ video {
 
 .constellation-menu-toggle {
   padding: 8px 12px;
-  background: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.6);
   color: white;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(0, 191, 255, 0.5);
   border-radius: 6px;
   cursor: pointer;
-  font-family: sans-serif;
-  width: 150px; /* Ancho fijo para consistencia */
+  font-family: "Space Age", sans-serif;
+  width: 180px; /* Ancho ajustado */
   text-align: center;
+  box-shadow: 0 0 10px rgba(0, 191, 255, 0.5), inset 0 0 5px rgba(0, 191, 255, 0.3);
+  transition: box-shadow 0.3s, background-color 0.3s;
+}
+
+.constellation-menu-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.8), inset 0 0 10px rgba(0, 191, 255, 0.5);
 }
 
 .constellation-options {
@@ -204,26 +301,35 @@ video {
   margin: 0;
   padding: 0;
   position: absolute;
-  bottom: 100%; /* Se despliega hacia arriba */
+  bottom: 120%; /* Se despliega hacia arriba con un poco de espacio */
   right: 0;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.2);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(0, 191, 255, 0.5);
   border-radius: 6px;
-  width: 150px;
-  margin-bottom: 5px;
+  width: 180px;
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
+  overflow: hidden;
 }
 
 .constellation-options li button {
   background: none;
-  border: none;
   color: white;
-  padding: 10px;
+  padding: 12px 16px;
   width: 100%;
   text-align: left;
   cursor: pointer;
+  font-family: "Space Age", sans-serif;
+  border: none;
+  border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .constellation-options li button:hover {
   background: rgba(0, 191, 255, 0.3);
+  border-color: rgba(0, 191, 255, 0.5);
+}
+
+.constellation-options li:last-child button {
+  border-bottom: none;
 }
