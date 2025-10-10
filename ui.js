@@ -3,6 +3,7 @@ import { camera, controls, originalMinDistance, originalMaxDistance } from './co
 import { sun, planetGroups, planetMeshes, pickableObjects, scene } from './celestialObjects.js';
 import { constellationGroup, constellationLinesStore } from './constellations.js'; export { constellationLinesStore };
 
+import { famousConstellations } from './config.js';
 const modal = document.getElementById('info-modal');
 const closeBtn = document.querySelector('#info-modal .close');
 const statsNameEl = document.getElementById('stats-name');
@@ -17,10 +18,19 @@ const constellationInfoEl = document.getElementById('constellation-info');
 const constellationImageEl = document.getElementById('constellation-image');
 const constellationCloseBtn = document.querySelector('#constellation-modal .close');
 
-let followTarget = null;
+let followTarget = null; // El objeto que la cámara está siguiendo
+let isZoomingOut = false; // Nuevo estado para controlar el zoom de salida
 
 export function getFollowTarget() {
     return followTarget;
+}
+
+export function getIsZoomingOut() { // Renombrado de la función
+    return isZoomingOut;
+}
+
+export function setZoomingOut(value) {
+    isZoomingOut = value;
 }
 
 export function updatePlanetStats(planetMesh, planetData) {
@@ -106,7 +116,7 @@ function exitFollowMode(event) {
     if (event) event.stopPropagation(); // Detiene la propagación del clic
     modal.style.display = 'none';
     followTarget = null;
-    controls.enabled = true;
+    isZoomingOut = true; // Activamos el modo de alejamiento
     updatePlanetStats(null, null);
 }
 
@@ -115,23 +125,14 @@ function closeConstellationModal(event) {
     constellationModal.style.display = 'none';
 }
 
-function enterFreeCameraMode() {
-    const freeCamBtn = document.getElementById('free-cam-btn');
-    if (followTarget) {
-        exitFollowMode();
-    }
-    controls.minDistance = 1;
-    controls.maxDistance = Infinity;
-    freeCamBtn.classList.add('active-cam-btn');
-}
-
 function returnToSun() {
-    const freeCamBtn = document.getElementById('free-cam-btn');
-    followTarget = sun;
-    controls.enabled = false;
+    // Salimos de cualquier modo de seguimiento que pudiera estar activo
+    exitFollowMode();
+    // Movemos la cámara a una posición inicial y apuntamos al centro
+    camera.position.set(0, 50, 200);
+    controls.target.set(0, 0, 0);
     controls.minDistance = originalMinDistance;
     controls.maxDistance = originalMaxDistance;
-    freeCamBtn.classList.remove('active-cam-btn');
 }
 
 function createConstellationMenuUI() {
@@ -139,20 +140,14 @@ function createConstellationMenuUI() {
     const toggleBtn = container.querySelector('.constellation-menu-toggle');
     const optionsList = container.querySelector('.constellation-options');
 
-    const famousConstellations = ['Orion', 'Ursa Major', 'Ursa Minor', 'Cassiopeia', 'Crux', 'Scorpius', 'Sagittarius', 'Leo', 'Taurus', 'Gemini', 'Aries', 'Virgo'];
-
     const options = [
-        { text: 'Mostrar Famosas (12)', action: () => {
+        { text: 'Mostrar Constelaciones', action: () => {
             constellationGroup.visible = true;
-            constellationLinesStore.forEach(line => { line.visible = famousConstellations.includes(line.userData.name); });
         }},
-        { text: 'Mostrar Todas', action: () => {
-            constellationGroup.visible = true;
-            constellationLinesStore.forEach(line => { line.visible = true; });
-        }},
-        { text: 'Ocultar Todas', action: () => { constellationGroup.visible = false; }}
+        { text: 'Ocultar Constelaciones', action: () => { constellationGroup.visible = false; }}
     ];
 
+    optionsList.innerHTML = ''; // Limpiamos las opciones existentes
     options.forEach(opt => {
         const li = document.createElement('li');
         const btn = document.createElement('button');
@@ -202,7 +197,6 @@ export function initUI() {
         if (e.target === constellationModal) closeConstellationModal(e);
     });
 
-    document.getElementById('free-cam-btn').addEventListener('click', enterFreeCameraMode);
     document.getElementById('home-btn').addEventListener('click', returnToSun);
 
     createConstellationMenuUI();

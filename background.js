@@ -203,35 +203,56 @@ export function createSupernova(position) {
 }
 
 // ====== AGUJEROS NEGROS ======
-export function createBlackHole({ position, size }) {
+export function createBlackHole({ position, size, scene }) {
     const blackHoleGroup = new THREE.Group();
     blackHoleGroup.position.copy(position);
 
     // 1. Horizonte de sucesos (la esfera negra)
     const horizonGeometry = new THREE.SphereGeometry(size, 64, 64);
-    const horizonMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    const horizonMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 1.0 });
     const horizon = new THREE.Mesh(horizonGeometry, horizonMaterial);
+    horizon.name = 'horizon';
     blackHoleGroup.add(horizon);
 
-    // 2. Disco de acreción brillante
-    const diskTexture = loadTextureCached(getAssetUrl('recursos/smokeA.png'));
-    const diskGeometry = new THREE.RingGeometry(size * 1.2, size * 4, 128); // Hacemos el disco más ancho
-    const diskMaterial = new THREE.MeshBasicMaterial({
-        map: diskTexture,
-        color: 0xffaa33, // Tinte anaranjado para el gas caliente
-        blending: THREE.AdditiveBlending,
-        side: THREE.DoubleSide,
+    // 2. Lente gravitacional (esfera de refracción)
+    const lensingSphereGeo = new THREE.SphereGeometry(size * 1.15, 64, 64);
+    const lensingMaterial = new THREE.MeshBasicMaterial({
+        color: 0x000000, // Cambiado a negro para que no se vea blanco sobre el horizonte
+        envMap: scene.background, // Usamos el fondo de la escena para la refracción
+        refractionRatio: 0.93, // Aumentamos la distorsión para que la silueta sea más obvia
         transparent: true,
-        opacity: 1.0, // Un poco más brillante
-        depthWrite: false,
+        opacity: 0.6, // Hacemos el efecto de lente más pronunciado
     });
-    const disk = new THREE.Mesh(diskGeometry, diskMaterial);
+    const lensingSphere = new THREE.Mesh(lensingSphereGeo, lensingMaterial);
+    lensingSphere.name = 'lensing';
+    blackHoleGroup.add(lensingSphere);
 
-    // Inclinar el disco aleatoriamente para darle un aspecto más natural
-    disk.rotation.x = Math.PI / 2 + (Math.random() - 0.5) * 0.4;
-    disk.rotation.y = (Math.random() - 0.5) * 0.4;
-
-    blackHoleGroup.add(disk);
+    // 3. Disco de acreción multi-capa
+    const diskGroup = new THREE.Group();
+    diskGroup.name = 'accretionDisk';
+    const diskTexture = loadTextureCached(getAssetUrl('recursos/smokeA.png')); // Reutilizamos una textura de humo
+    const ringCount = 5;
+    for (let i = 0; i < ringCount; i++) {
+        const ringRadiusStart = size * (1.5 + i * 0.8); // Hacemos el disco más grande
+        const ringRadiusEnd = ringRadiusStart + size * (0.7 + Math.random() * 0.6); // Y los anillos más anchos
+        const diskGeometry = new THREE.RingGeometry(ringRadiusStart, ringRadiusEnd, 128);
+        const diskMaterial = new THREE.MeshBasicMaterial({
+            map: diskTexture,
+            color: new THREE.Color(0xff4400).lerp(new THREE.Color(0xff8800), i / ringCount), // Gradiente más brillante (rojo a naranja)
+            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.9 + Math.random() * 0.8, // Aumentamos drásticamente la opacidad para un brillo máximo
+            depthWrite: false,
+        });
+        const disk = new THREE.Mesh(diskGeometry, diskMaterial);
+        disk.rotation.x = Math.PI / 2;
+        disk.userData.rotationSpeed = (0.001 + Math.random() * 0.002) * (ringCount - i); // Los anillos internos son más rápidos
+        diskGroup.add(disk);
+    }
+    diskGroup.rotation.x = (Math.random() - 0.5) * 0.4;
+    diskGroup.rotation.y = (Math.random() - 0.5) * 0.4;
+    blackHoleGroup.add(diskGroup);
 
     scene.add(blackHoleGroup);
     blackHoles.push(blackHoleGroup);

@@ -3,7 +3,7 @@ import { scene, camera, renderer, controls, loadingManager } from './core.js';
 import { sun, planetGroups, stationGroup, asteroidMetas, asteroidsInstanced, comets } from './celestialObjects.js';
 import { nebulaGroups } from './background.js';
 import { planets, moonData, stationData, CONSTELLATION_RADIUS } from './config.js';
-import { initUI, updatePlanetStats, getFollowTarget, constellationLinesStore } from './ui.js';
+import { initUI, updatePlanetStats, getFollowTarget, getIsZoomingOut, setZoomingOut, constellationLinesStore } from './ui.js'; // Actualizado el import
 import { initConstellations, constellationGroup } from './constellations.js';
 import { initBackground, createSupernova, activeSupernovas, blackHoles, createBlackHole } from './background.js';
 // ====== GESTOR DE CARGA ======
@@ -33,7 +33,6 @@ const hideLoadingScreen = () => {
   }, 500);
 };
 
-let followTarget = null;
 const zoomOffset = new THREE.Vector3(0, 2, 10);
 
 // ====== ANIMACIÓN (optimizada) ======
@@ -45,23 +44,39 @@ function animate() {
   const timeFast = now * 0.001;
 
   if (getFollowTarget()) {
-    const followTarget = getFollowTarget();
+    const currentFollowTarget = getFollowTarget();
     const targetPos = new THREE.Vector3();
-    followTarget.getWorldPosition(targetPos);
-    const targetSize = (followTarget.children[0]?.userData?.size) || followTarget.userData?.size || 1;
+    currentFollowTarget.getWorldPosition(targetPos);
+    const targetSize = (currentFollowTarget.children[0]?.userData?.size) || currentFollowTarget.userData?.size || 1;
     const desiredPos = targetPos.clone().add(zoomOffset.clone().multiplyScalar(targetSize));
     camera.position.lerp(desiredPos, 0.05);
+    // La cámara se mueve hacia el objetivo, pero los controles permanecen activos.
     controls.target.lerp(targetPos, 0.05);
 
     let planetData = null, planetMesh = null;
-    if (followTarget === sun) { planetData = sun.userData; planetMesh = sun; }
-    else if (followTarget === scene.userData._moonGroup) { planetData = scene.userData._moon.userData; planetMesh = scene.userData._moon; }
+    if (currentFollowTarget === sun) { planetData = sun.userData; planetMesh = sun; }
+    else if (currentFollowTarget === scene.userData._moonGroup) { planetData = scene.userData._moon.userData; planetMesh = scene.userData._moon; }
     else {
-      const idx = planetGroups.indexOf(followTarget);
+      const idx = planetGroups.indexOf(currentFollowTarget);
       planetData = planets[idx + 1];
-      planetMesh = followTarget.children[0];
+      planetMesh = currentFollowTarget.children[0];
     }
     updatePlanetStats(planetMesh, planetData);
+  } else if (getIsZoomingOut()) { // Actualizado el uso de la función
+    // Animación de "zoom out" cuando se sale del modo de seguimiento
+    const zoomOutTargetPosition = new THREE.Vector3(0, 50, 200);
+    const zoomOutTargetLookAt = new THREE.Vector3(0, 0, 0);
+
+    camera.position.lerp(zoomOutTargetPosition, 0.02);
+    controls.target.lerp(zoomOutTargetLookAt, 0.02);
+
+    // Si la cámara está lo suficientemente cerca del objetivo, detenemos la animación de zoom out.
+    if (camera.position.distanceTo(zoomOutTargetPosition) < 1) {
+      setZoomingOut(false);
+      camera.position.copy(zoomOutTargetPosition); // Aseguramos la posición final de la cámara
+      controls.target.copy(zoomOutTargetLookAt); // Aseguramos el objetivo final
+      controls.enabled = true; // Reactivamos los controles AHORA.
+    }
   }
 
   // Planetas: rotación y órbitas (optimizado: evitar crear vectores temporales dentro del loop)
@@ -129,35 +144,39 @@ function animate() {
   
   // Rotación sutil de las nebulosas para dar vida al fondo
   nebulaGroups.forEach((group, i) => {
-      group.rotation.y += 0.00005 * (i % 2 === 0 ? 1 : -1);
-      group.rotation.x += 0.00002 * (i % 2 === 0 ? -1 : 1);
+      group.rotation.y += 0.000005 * (i % 2 === 0 ? 1 : -1); // Reducimos la velocidad de rotación
+      group.rotation.x += 0.000002 * (i % 2 === 0 ? -1 : 1); // Reducimos la velocidad de rotación
   });
 
   // Pulsing effect for constellations
   if (constellationGroup.visible) {
-    const pulse = Math.sin(now * 0.0015) * 0.2 + 0.6; // Pulses between 0.4 and 0.8
+    const pulse = Math.sin(now * 0.001) * 0.15 + 0.75; // Pulso más sutil (0.6 a 0.9)
     constellationLinesStore.forEach(line => {
       if (line.visible) {
-        line.material.opacity = pulse;
+        if (line.userData.isStars) { // Si es el objeto de estrellas (ShaderMaterial)
+          line.material.uniforms.globalPulse.value = pulse;
+        } else { // Si es el objeto de líneas (LineBasicMaterial)
+          line.material.opacity = pulse * 0.5; // Las líneas pulsan más suavemente
+        }
       }
     });
   }
 
   // Rotación lenta de los agujeros negros
-  blackHoles.forEach((bh, index) => {
-    bh.rotation.y += 0.0005;
-
-    // Hacemos que el disco de acreción pulse para señalizar su posición
-    const disk = bh.children[1];
-    if (disk) {
-      disk.material.opacity = 0.7 + Math.sin(now * 0.0008 + index) * 0.2; // Pulsa entre 0.5 y 0.9
+  blackHoles.forEach(bh => {
+    // Rotación del disco de acreción
+    const diskGroup = bh.getObjectByName('accretionDisk');
+    if (diskGroup) {
+      diskGroup.children.forEach(disk => {
+        disk.rotation.z += disk.userData.rotationSpeed;
+      });
     }
   });
 
   // Disparador y animación de supernovas
   if (Math.random() < 0.002) { // Probabilidad baja en cada fotograma
       // Generar la supernova a una distancia mínima para que aparezca "lejos"
-      const minDistance = CONSTELLATION_RADIUS * 1.2; // Un poco más allá de las constelaciones
+      const minDistance = CONSTELLATION_RADIUS * 1.0; // Un poco más allá de las constelaciones
       const maxDistance = CONSTELLATION_RADIUS * 2.5; // Mucho más lejos
       
       const distance = minDistance + Math.random() * (maxDistance - minDistance);
@@ -245,15 +264,16 @@ async function main() {
   // Generar varios agujeros negros en posiciones lejanas
   const blackHoleCount = 3;
   for (let i = 0; i < blackHoleCount; i++) {
-    const minDistance = CONSTELLATION_RADIUS * 1.5; // Los traemos un poco más cerca
-    const maxDistance = CONSTELLATION_RADIUS * 2.5;
+    const minDistance = CONSTELLATION_RADIUS * 1.0; // Los traemos un poco más cerca
+    const maxDistance = CONSTELLATION_RADIUS * 1.5;
     const distance = minDistance + Math.random() * (maxDistance - minDistance);
     const phi = Math.acos(2 * Math.random() - 1);
     const theta = Math.random() * 2 * Math.PI;
     const position = new THREE.Vector3().setFromSphericalCoords(distance, phi, theta);
     
     createBlackHole({
-      position: position,
+      position,
+      scene, // Pasamos la escena para el efecto de lente
       size: 40 + Math.random() * 40 // Hacemos que sean más grandes
     });
   }

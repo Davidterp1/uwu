@@ -18,3 +18,5 @@ export const moonData = { name: 'Moon', mass: '7.342 × 10^22 kg', radius: '1,73
 export const stationData = { orbitRadius: 20, orbitalSpeed: 0.9 };
 
 export const CONSTELLATION_RADIUS = 2000;
+
+export const famousConstellations = ['Orion', 'Ursa Major', 'Ursa Minor', 'Cassiopeia', 'Crux', 'Scorpius', 'Sagittarius', 'Leo', 'Taurus', 'Gemini', 'Aries', 'Virgo'];
