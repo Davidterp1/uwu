@@ -1,3 +1,62 @@
+/* ====== Pantalla de Carga ====== */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 1s ease-out, visibility 1s ease-out;
+  font-family: "Space Age", sans-serif;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading-content h1 {
+  color: #00bfff;
+  text-shadow: 0 0 15px rgba(0, 191, 255, 0.8);
+  animation: pulse 2s infinite;
+  margin-bottom: 25px;
+}
+
+.progress-bar-container {
+  width: 300px;
+  height: 20px;
+  border: 2px solid #00bfff;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #00bfff, #0077ff);
+  transition: width 0.4s ease-out;
+}
+
+.progress-text {
+  margin-top: 15px;
+  color: #f1f1f1;
+  font-size: 1.2em;
+  text-shadow: 0 0 5px #00bfff;
+}
+
+
 body {
   background-attachment: fixed;
   margin: 0;
@@ -42,6 +101,46 @@ body {
   width: 300px;
   border-radius: 10px;
   box-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
+}
+/* Estilos para el panel de ayuda */
+.help-content {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 450px;
+  text-align: center;
+}
+
+.help-content ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  margin: 20px 0;
+}
+
+.help-content li {
+  margin-bottom: 12px;
+  font-size: 1.1em;
+  color: #ddd;
+}
+
+.help-content strong {
+  color: #00bfff;
+}
+
+#close-help-btn {
+  background-color: rgba(0, 191, 255, 0.5);
+  border: 1px solid rgba(0, 191, 255, 0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-family: "Space Age", sans-serif;
+}
+
+#close-help-btn:hover {
+  background-color: rgba(0, 191, 255, 0.8);
 }
 
 /* Estilo específico para el modal de constelaciones, para que aparezca a la izquierda */
@@ -167,7 +266,7 @@ body {
   font-family: "Space Age";
   /* Asegúrate de que la ruta al archivo de la fuente es correcta. */
   /* Asumo que está en una carpeta 'fonts'. */
-  src: url("./space\ age.ttf");
+  src: url("../recursos/space age.ttf");
 }
 
 
@@ -332,4 +431,46 @@ video {
 
 .constellation-options li:last-child button {
   border-bottom: none;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ====== Botón para abrir la ayuda ====== */
+#help-icon-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  display: flex;
+  gap: 10px;
+}
+
+button#open-help-btn, button#free-cam-btn, button#home-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(0, 191, 255, 0.4);
+  border: 1px solid rgba(0, 191, 255, 0.7);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+button#open-help-btn:hover, button#free-cam-btn:hover, button#home-btn:hover {
+  background-color: rgba(0, 191, 255, 0.7);
+  transform: scale(1.1);
+}
+
+.active-cam-btn {
+  box-shadow: 0 0 15px rgba(0, 255, 150, 0.9);
+  border-color: rgba(0, 255, 150, 1);
 }

@@ -15,7 +15,16 @@
 </script>
 </head>
 <body>
-  <audio src="inter.mp3" autoplay loop></audio>
+  <div id="loading-screen">
+    <div class="loading-content">
+        <h1>Cargando Universo...</h1>
+        <div class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        <p id="progress-text" class="progress-text">0%</p>
+    </div>
+  </div>
+  <audio src="recursos/inter.mp3" autoplay loop></audio>
   <div class="menu-container">
     <button class="menu-toggle">
       <span></span>
@@ -51,6 +60,36 @@
     <p id="stats-speed">Velocidad orbital: -</p>
   </div>
   
+  <div class="constellation-menu-container">
+    <button class="constellation-menu-toggle">Constelaciones</button>
+    <ul class="constellation-options">
+      <!-- Las opciones se generarán con JS -->
+    </ul>
+  </div>
+
+  <!-- Botón para reabrir la ayuda -->
+  <div id="help-icon-container">
+    <button id="free-cam-btn" title="Cámara Libre">📷</button>
+    <button id="home-btn" title="Volver al Sol">☀️</button>
+    <button id="open-help-btn" title="Mostrar Ayuda">?</button>
+  </div>
+
+  <!-- Panel de Ayuda / Tutorial -->
+  <div id="help-modal" class="modal">
+    <div class="modal-content help-content">
+      <span class="close">&times;</span>
+      <h2>Bienvenido al Explorador Cósmico</h2>
+      <p>Aquí tienes unos consejos para empezar:</p>
+      <ul>
+        <li>Usa el <strong>clic izquierdo y arrastra</strong> para rotar la cámara.</li>
+        <li>Usa la <strong>rueda del ratón</strong> para acercar y alejar.</li>
+        <li>Haz <strong>clic derecho</strong> en planetas y constelaciones para ver su información.</li>
+        <li>Presiona la tecla <strong>'C'</strong> para mostrar u ocultar las constelaciones.</li>
+      </ul>
+      <button id="close-help-btn">¡Entendido!</button>
+    </div>
+  </div>
+
   <script type="module" src="script.js"></script>
 </body>
 </html>
