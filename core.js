@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // ====== ESCENA, CÁMARA, RENDERER y CONTROLES ======
@@ -13,13 +13,10 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
-export const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.minDistance = 2; // Permitimos un zoom más cercano
-export const originalMinDistance = controls.minDistance;
-controls.maxDistance = 500;
-export const originalMaxDistance = controls.maxDistance;
+export const controls = new PointerLockControls(camera, renderer.domElement);
+// Para activar los controles, el usuario deberá hacer clic en la pantalla.
+// Añadimos el objeto de los controles a la escena para que la cámara se mueva con él.
+scene.add(controls.getObject());
 
 // ====== LUCES ======
 export const pointLight = new THREE.PointLight(0xffffff, 3);

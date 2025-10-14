@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 import { scene, camera, renderer, controls, loadingManager } from './core.js';
-import { sun, planetGroups, stationGroup, asteroidMetas, asteroidsInstanced, comets, pickableObjects, planetMeshes } from './celestialObjects.js';
+import { sun, planetGroups, stationGroup, asteroidMetas, asteroidsInstanced, comets, pickableObjects } from './celestialObjects.js';
+import { nebulaGroups, createBlackHole, activeSupernovas, blackHoles } from './background.js';
 import { planets, moonData, stationData, CONSTELLATION_RADIUS } from './config.js';
-import { initUI, constellationLinesStore, updatePlanetInfo, updateConstellationInfo } from './ui.js';
+import { initUI, updatePlanetStats, getFollowTarget, getIsZoomingOut, setZoomingOut, constellationLinesStore } from './ui.js'; // Actualizado el import
 import { initConstellations, constellationGroup } from './constellations.js';
-import { initBackground, createSupernova, activeSupernovas, blackHoles, createBlackHole, nebulaGroups } from './background.js';
+import { initBackground, createSupernova, activeSupernovas, blackHoles, createBlackHole } from './background.js';
 // ====== GESTOR DE CARGA ======
 const loadingScreen = document.getElementById('loading-screen');
 const progressBar = document.getElementById('progress-bar');
@@ -41,7 +42,7 @@ const moveState = {
   up: false,
   down: false
 };
-const moveSpeed = 600.0; // Unidades por segundo (Aumentado para mayor velocidad)
+const moveSpeed = 300.0; // Unidades por segundo
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
@@ -53,10 +54,6 @@ document.addEventListener('keydown', (event) => {
         case 'KeyD': moveState.right = true; break;
         case 'Space': moveState.up = true; break;
         case 'ShiftLeft': moveState.down = true; break;
-        case 'Escape': {
-            // Si no hay modales abiertos, ESC funcionará de forma nativa para desbloquear el puntero.
-            break;
-        }
     }
 });
 
@@ -74,17 +71,6 @@ document.addEventListener('keyup', (event) => {
 // ====== ANIMACIÓN (optimizada) ======
 const clock = new THREE.Clock();
 
-const hoverRaycaster = new THREE.Raycaster();
-let lastHoveredPlanet = null;
-let lastHoveredConstellation = null;
-
-// Creamos un Render Target para el efecto de lente gravitacional
-const renderTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
-
-// Definimos las capas de renderizado
-const DEFAULT_LAYER = 0;
-const LENSING_LAYER = 1;
-
 function animate() {
   requestAnimationFrame(animate);
   const delta = clock.getDelta();
@@ -92,47 +78,16 @@ function animate() {
   const timeSmall = time * 0.0001;
   const timeFast = time * 0.001;
 
-  // Lógica de Hover para mostrar información del planeta
-  if (controls.isLocked) {
-    hoverRaycaster.setFromCamera({ x: 0, y: 0 }, camera);
-    const intersects = hoverRaycaster.intersectObjects(pickableObjects, true);
-    
-    let currentlyHoveredPlanet = null;
-    let currentlyHoveredConstellation = null;
-
-    if (intersects.length > 0) {
-        const firstHit = intersects[0].object;
-        const isPlanetOrSun = planetMeshes.includes(firstHit) || firstHit === sun || (scene.userData._moon && firstHit === scene.userData._moon);
-        
-        if (isPlanetOrSun) {
-            currentlyHoveredPlanet = firstHit;
-        } else if (firstHit.userData.isConstellation) {
-            currentlyHoveredConstellation = firstHit;
-        }
-    }
-
-    if (lastHoveredPlanet !== currentlyHoveredPlanet) {
-        lastHoveredPlanet = currentlyHoveredPlanet;
-    }
-    if (lastHoveredConstellation !== currentlyHoveredConstellation) {
-        lastHoveredConstellation = currentlyHoveredConstellation;
-    }
-
-    updatePlanetInfo(lastHoveredPlanet);
-    updateConstellationInfo(lastHoveredConstellation);
-  }
-
+  // Actualizar movimiento de la cámara si los controles están activos
   if (controls.isLocked === true) {
-    // --- MODO VUELO LIBRE (WASD) ---
-
-    // Deceleración suave para que la cámara se detenga al soltar las teclas.
+    // Deceleración suave
     velocity.x -= velocity.x * 10.0 * delta;
     velocity.z -= velocity.z * 10.0 * delta;
     velocity.y -= velocity.y * 10.0 * delta;
 
     direction.z = Number(moveState.forward) - Number(moveState.backward);
     direction.x = Number(moveState.right) - Number(moveState.left);
-    direction.normalize();
+    direction.normalize(); // Asegura un movimiento consistente en diagonal
 
     if (moveState.forward || moveState.backward) velocity.z -= direction.z * moveSpeed * delta;
     if (moveState.left || moveState.right) velocity.x -= direction.x * moveSpeed * delta;
@@ -143,9 +98,6 @@ function animate() {
     controls.moveForward(-velocity.z * delta);
     controls.getObject().position.y += velocity.y * delta;
   }
-
-  // Sol: rotación sobre su propio eje
-  sun.rotation.y += (planets[0].rotationSpeed || 0) * 0.005;
 
   // Planetas: rotación y órbitas (optimizado: evitar crear vectores temporales dentro del loop)
   for (let i = 0; i < planetGroups.length; i++) {
@@ -218,7 +170,7 @@ function animate() {
 
   // Pulsing effect for constellations
   if (constellationGroup.visible) {
-    const pulse = Math.sin(time * 0.001) * 0.15 + 0.75; // Pulso más sutil (0.6 a 0.9)
+    const pulse = Math.sin(now * 0.001) * 0.15 + 0.75; // Pulso más sutil (0.6 a 0.9)
     constellationLinesStore.forEach(line => {
       if (line.visible) {
         if (line.userData.isStars) { // Si es el objeto de estrellas (ShaderMaterial)
@@ -234,24 +186,10 @@ function animate() {
   blackHoles.forEach(bh => {
     // Rotación del disco de acreción
     const diskGroup = bh.getObjectByName('accretionDisk');
-    // Ahora solo hay un disco, así que animamos el primero que encontremos.
-    if (diskGroup && diskGroup.children.length > 0 && diskGroup.children[0].material.uniforms) {
-      // Actualizamos el uniform 'time' en el shader del disco para que se anime.
-      diskGroup.children[0].material.uniforms.time.value = time * 0.0001;
-    } 
-
-    // Actualizamos los uniforms del shader de distorsión
-    const lensingSphere = bh.getObjectByName('lensing');
-    if (lensingSphere) {
-        const screenPos = new THREE.Vector3();
-        bh.getWorldPosition(screenPos);
-        screenPos.project(camera); // Proyectamos la posición 3D a coordenadas de pantalla (-1 a 1)
-
-        // Convertimos de -1 a 1 -> 0 a 1 para usar como UV
-        screenPos.x = screenPos.x * 0.5 + 0.5;
-        screenPos.y = screenPos.y * 0.5 + 0.5;
-
-        lensingSphere.material.uniforms.blackHolePosition.value.copy(screenPos);
+    if (diskGroup) {
+      diskGroup.children.forEach(disk => {
+        disk.rotation.z += disk.userData.rotationSpeed;
+      });
     }
   });
 
@@ -306,13 +244,13 @@ function animate() {
           const coreScale = 1 + easeOutRatio * 200;
           core.scale.set(coreScale, coreScale, coreScale);
           core.material.opacity = Math.cos(easeOutRatio * (Math.PI / 2)) * 0.8;
-          core.rotation.z += 0.001; // Corregido: rotar el objeto, no el material
+          core.material.rotation += 0.001;
 
           // Animación de la onda expansiva
           const shellScale = 1 + easeOutRatio * 500;
           shell.scale.set(shellScale, shellScale, shellScale);
           shell.material.opacity = (1.0 - lifeRatio) * 0.6;
-          shell.rotation.z -= 0.0007; // Corregido: rotar el objeto, no el material
+          shell.material.rotation -= 0.0007;
 
           // Ambas capas evolucionan su color hacia un rojo oscuro
           const endColor = new THREE.Color(0x661100);
@@ -325,20 +263,6 @@ function animate() {
       }
   }
 
-  // ====== RENDERIZADO EN DOS PASES PARA LENTE GRAVITACIONAL ======
-
-  // 1. Primer pase: Renderizamos la escena normal (capa 0) a nuestra textura.
-  camera.layers.set(DEFAULT_LAYER); // Solo vemos la capa por defecto
-  renderer.setRenderTarget(renderTarget);
-  renderer.render(scene, camera);
-  renderer.setRenderTarget(null);
-
-  // 2. Segundo pase: Renderizamos todo a la pantalla.
-  // El shader de la esfera de distorsión usará la textura que acabamos de crear.
-  camera.layers.enableAll(); // Vemos todas las capas
-  blackHoles.forEach(bh => {
-      bh.getObjectByName('lensing').material.uniforms.sceneTexture.value = renderTarget.texture;
-  });
   renderer.render(scene, camera);
 }
 
@@ -353,6 +277,11 @@ async function main() {
     initConstellations(),
     initBackground()
   ]);
+
+  // Añadimos el listener para activar los controles con un clic
+  document.body.addEventListener('click', () => {
+    controls.lock();
+  });
 
   initUI();
 
@@ -412,13 +341,4 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderTarget.setSize(window.innerWidth, window.innerHeight);
-
-  // Actualizamos la resolución en los shaders de los agujeros negros
-  blackHoles.forEach(bh => {
-    const lensingSphere = bh.getObjectByName('lensing');
-    if (lensingSphere) {
-        lensingSphere.material.uniforms.screenResolution.value.set(window.innerWidth, window.innerHeight);
-    }
-  });
 });

@@ -192,7 +192,7 @@ export function createSupernova(position) {
     // Guardamos datos para la animación
     supernovaGroup.userData = {
         isSupernova: true,
-        startTime: Date.now(),
+        startTime: performance.now(),
         duration: 9000 + Math.random() * 6000, // Duración entre 9 y 15 segundos
         startColor: startColor,
         light: pointLight,
@@ -203,56 +203,144 @@ export function createSupernova(position) {
 }
 
 // ====== AGUJEROS NEGROS ======
-export function createBlackHole({ position, size, scene }) {
+export function createBlackHole({ position, size }) {
     const blackHoleGroup = new THREE.Group();
     blackHoleGroup.position.copy(position);
 
     // 1. Horizonte de sucesos (la esfera negra)
     const horizonGeometry = new THREE.SphereGeometry(size, 64, 64);
-    const horizonMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 1.0 });
+    const horizonMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
     const horizon = new THREE.Mesh(horizonGeometry, horizonMaterial);
     horizon.name = 'horizon';
     blackHoleGroup.add(horizon);
 
-    // 2. Lente gravitacional (esfera de refracción)
-    const lensingSphereGeo = new THREE.SphereGeometry(size * 1.15, 64, 64);
-    const lensingMaterial = new THREE.MeshBasicMaterial({
-        color: 0x000000, // Cambiado a negro para que no se vea blanco sobre el horizonte
-        envMap: scene.background, // Usamos el fondo de la escena para la refracción
-        refractionRatio: 0.93, // Aumentamos la distorsión para que la silueta sea más obvia
-        transparent: true,
-        opacity: 0.6, // Hacemos el efecto de lente más pronunciado
+    // 2. Lente Gravitacional (Shader para distorsionar el fondo)
+    // Le asignamos una capa de renderizado diferente para poder controlarlo
+    const LENSING_LAYER = 1;
+    const lensingSphereGeo = new THREE.SphereGeometry(size * 1.1, 64, 64);
+    const lensingMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            'sceneTexture': { value: null }, // La textura de la escena se pasará desde el bucle de render
+            'screenResolution': { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+            'blackHolePosition': { value: new THREE.Vector3() }, // La posición en pantalla del agujero negro
+            'distortionStrength': { value: 0.05 } // Qué tan fuerte es la distorsión
+        },
+        vertexShader: `
+            varying vec4 v_screenPosition;
+            void main() {
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                v_screenPosition = gl_Position;
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D sceneTexture;
+            uniform vec2 screenResolution;
+            uniform vec3 blackHolePosition;
+            uniform float distortionStrength;
+            varying vec4 v_screenPosition;
+
+            void main() {
+                // Coordenadas de pantalla del fragmento actual (de 0 a 1)
+                vec2 screenUV = (v_screenPosition.xy / v_screenPosition.w) * 0.5 + 0.5;
+                
+                // Coordenadas de pantalla del centro del agujero negro (de 0 a 1)
+                vec2 blackHoleUV = blackHolePosition.xy;
+
+                vec2 toCenter = blackHoleUV - screenUV;
+                float dist = length(toCenter);
+                vec2 distortedUV = screenUV + normalize(toCenter) * (distortionStrength / (dist + 0.01));
+
+                gl_FragColor = texture2D(sceneTexture, distortedUV);
+            }
+        `,
+        side: THREE.BackSide, // Renderizamos la cara interna para que el efecto sea visible desde fuera.
+        transparent: false, // No es necesario que sea transparente si solo dibuja negro.
+        depthWrite: false, // No escribe en el buffer de profundidad para no ocultar el disco de acreción.
+        blending: THREE.NormalBlending,
     });
+    // Como no tenemos un mapa de entorno real, esta esfera simplemente creará una silueta oscura
+    // que es ligeramente más grande que el horizonte, un primer paso hacia el lensing.
+    // Para un efecto completo, se necesitaría un CubeCamera.
     const lensingSphere = new THREE.Mesh(lensingSphereGeo, lensingMaterial);
     lensingSphere.name = 'lensing';
+    lensingSphere.layers.set(LENSING_LAYER); // Asignamos la esfera a su capa
     blackHoleGroup.add(lensingSphere);
 
-    // 3. Disco de acreción multi-capa
+    // 3. Disco de acreción realista con shaders
     const diskGroup = new THREE.Group();
     diskGroup.name = 'accretionDisk';
-    const diskTexture = loadTextureCached(getAssetUrl('recursos/smokeA.png')); // Reutilizamos una textura de humo
-    const ringCount = 5;
-    for (let i = 0; i < ringCount; i++) {
-        const ringRadiusStart = size * (1.5 + i * 0.8); // Hacemos el disco más grande
-        const ringRadiusEnd = ringRadiusStart + size * (0.7 + Math.random() * 0.6); // Y los anillos más anchos
-        const diskGeometry = new THREE.RingGeometry(ringRadiusStart, ringRadiusEnd, 128);
-        const diskMaterial = new THREE.MeshBasicMaterial({
-            map: diskTexture,
-            color: new THREE.Color(0xff4400).lerp(new THREE.Color(0xff8800), i / ringCount), // Gradiente más brillante (rojo a naranja)
-            blending: THREE.AdditiveBlending,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.9 + Math.random() * 0.8, // Aumentamos drásticamente la opacidad para un brillo máximo
-            depthWrite: false,
-        });
-        const disk = new THREE.Mesh(diskGeometry, diskMaterial);
-        disk.rotation.x = Math.PI / 2;
-        disk.userData.rotationSpeed = (0.001 + Math.random() * 0.002) * (ringCount - i); // Los anillos internos son más rápidos
-        diskGroup.add(disk);
-    }
-    diskGroup.rotation.x = (Math.random() - 0.5) * 0.4;
-    diskGroup.rotation.y = (Math.random() - 0.5) * 0.4;
-    blackHoleGroup.add(diskGroup);
+
+    const diskTexture = loadTextureCached(getAssetUrl('recursos/smokeA.png'));
+    diskTexture.wrapS = diskTexture.wrapT = THREE.RepeatWrapping;
+
+    const diskShaderMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            'time': { value: 0.0 },
+            'diskTexture': { value: diskTexture },
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float time;
+            uniform sampler2D diskTexture;
+            varying vec2 vUv;
+
+            void main() {
+                vec2 center = vec2(0.5, 0.5);
+                float dist = distance(vUv, center);
+                
+                // Descartamos los fragmentos fuera del anillo para crear el agujero central
+                if (dist > 0.5 || dist < 0.15) {
+                    discard;
+                }
+
+                // Coordenadas polares para la rotación
+                float angle = atan(vUv.y - center.y, vUv.x - center.x);
+                float speed = 0.05 / (dist + 0.1); // Más rápido cerca del centro
+                
+                // Muestreamos la textura de ruido dos veces con diferente velocidad y escala para más detalle
+                vec2 uv1 = vec2(angle / (2.0 * 3.14159), dist * 2.0);
+                uv1.x += time * speed;
+                vec4 noise1 = texture2D(diskTexture, uv1);
+
+                vec2 uv2 = vec2(angle / (2.0 * 3.14159), dist * 3.0);
+                uv2.x += time * speed * 0.7;
+                vec4 noise2 = texture2D(diskTexture, uv2);
+
+                float combinedNoise = noise1.r * 0.6 + noise2.r * 0.4;
+
+                // Degradado de color desde el interior (amarillo/blanco) al exterior (rojo/naranja)
+                vec3 innerColor = vec3(1.0, 0.8, 0.4); // Amarillo-blanco
+                vec3 outerColor = vec3(1.0, 0.2, 0.0); // Rojo-naranja
+                vec3 color = mix(innerColor, outerColor, smoothstep(0.15, 0.5, dist));
+
+                // La intensidad del brillo es mayor en el centro
+                float intensity = pow(1.0 - smoothstep(0.15, 0.5, dist), 2.0) * 2.0;
+                
+                gl_FragColor = vec4(color * combinedNoise * intensity, combinedNoise);
+            }
+        `,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+    });
+
+    const diskGeometry = new THREE.RingGeometry(size * 1.2, size * 4.0, 128);
+    const mainDisk = new THREE.Mesh(diskGeometry, diskShaderMaterial);
+    mainDisk.rotation.x = Math.PI / 2;
+    diskGroup.add(mainDisk);
+
+    // Inclinación general del disco
+    diskGroup.rotation.x = 0.2;
+    diskGroup.rotation.y = Math.random() * Math.PI;
+
+    blackHoleGroup.add(diskGroup);    
 
     scene.add(blackHoleGroup);
     blackHoles.push(blackHoleGroup);
@@ -296,7 +384,7 @@ export async function initBackground() {
         new THREE.Color(0.2, 0.4, 0.9),
         new THREE.Color(0.9, 0.4, 0.2)
     ];
-    const nebulaCount = 40; // Aumentamos aún más el número de nebulosas
+    const nebulaCount = 80; // Aumentamos considerablemente el número de nebulosas
     const nebulaShapes = ['sphere', 'disk', 'box'];
     for (let i = 0; i < nebulaCount; i++) { 
         const r = 1500 + Math.random() * 3000;
@@ -305,9 +393,7 @@ export async function initBackground() {
         const y_sign = (i < nebulaCount / 2) ? 1 : -1;
 
         let center = new THREE.Vector3(
-            r * Math.sin(phi) * Math.cos(theta),
-            r * Math.sin(phi) * Math.sin(theta),
-            r * Math.cos(phi)
+            r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi)
         );
         center.y *= y_sign;
 

@@ -1,16 +1,14 @@
 import * as THREE from 'three';
-import { camera, controls, originalMinDistance, originalMaxDistance } from './core.js';
+import { camera, controls } from './core.js';
 import { sun, planetGroups, planetMeshes, pickableObjects, scene } from './celestialObjects.js';
 import { constellationGroup, constellationLinesStore } from './constellations.js'; export { constellationLinesStore };
-
 import { famousConstellations } from './config.js';
-const modal = document.getElementById('info-modal');
-const closeBtn = document.querySelector('#info-modal .close');
+const planetStats = document.getElementById('planet-stats');
 const statsNameEl = document.getElementById('stats-name');
 const statsDistanceEl = document.getElementById('stats-distance');
 const statsSpeedEl = document.getElementById('stats-speed');
-const planetNameEl = document.getElementById('planet-name');
-const planetInfoEl = document.getElementById('planet-info');
+const statsDescriptionEl = document.getElementById('stats-description');
+const statsExtraInfoEl = document.getElementById('stats-extra-info');
 
 const constellationModal = document.getElementById('constellation-modal');
 const constellationNameEl = document.getElementById('constellation-name');
@@ -18,35 +16,24 @@ const constellationInfoEl = document.getElementById('constellation-info');
 const constellationImageEl = document.getElementById('constellation-image');
 const constellationCloseBtn = document.querySelector('#constellation-modal .close');
 
-let followTarget = null; // El objeto que la cámara está siguiendo
-let isZoomingOut = false; // Nuevo estado para controlar el zoom de salida
-
-export function getFollowTarget() {
-    return followTarget;
-}
-
-export function getIsZoomingOut() { // Renombrado de la función
-    return isZoomingOut;
-}
-
-export function setZoomingOut(value) {
-    isZoomingOut = value;
-}
-
-export function updatePlanetStats(planetMesh, planetData) {
-    if (!planetMesh || !planetData) {
-        statsNameEl.textContent = 'Sistema Solar';
-        statsDistanceEl.textContent = 'Distancia al Sol: -';
-        statsSpeedEl.textContent = 'Velocidad orbital: -';
+export function updatePlanetInfo(planetMesh) {
+    if (!planetMesh) {
+        // Si no hay planeta, ocultamos el panel
+        planetStats.classList.remove('visible');
         return;
     }
+    const planetData = planetMesh.userData;
     const sunPos = new THREE.Vector3(); sun.getWorldPosition(sunPos);
     const planetPos = new THREE.Vector3(); planetMesh.getWorldPosition(planetPos);
     const distance = planetPos.distanceTo(sunPos);
     const speed = (planetData.orbitalSpeed || 0) * (planetData.orbitRadius || 1);
     statsNameEl.textContent = planetData.name;
-    statsDistanceEl.textContent = `Distancia al Sol: ${distance.toFixed(2)} unidades`;
-    statsSpeedEl.textContent = `Velocidad orbital: ${speed.toFixed(3)} rad/unidad de tiempo`;
+    statsDistanceEl.innerHTML = `<span>Distancia al Sol</span><span>${distance.toFixed(0)}</span>`;
+    statsSpeedEl.innerHTML = `<span>Velocidad orbital</span><span>${speed.toFixed(3)} rad/t</span>`;
+    statsDescriptionEl.textContent = planetData.description || '';
+    statsExtraInfoEl.innerHTML = formatExtraInfo(planetData);
+    // Mostramos el panel con la nueva información
+    planetStats.classList.add('visible');
 }
 
 function formatExtraInfo(planetData) {
@@ -60,20 +47,32 @@ function formatExtraInfo(planetData) {
     return out;
 }
 
-async function onSceneClick(event) {
-    event.preventDefault(); // Previene que aparezca el menú contextual del navegador.
-
-    // Si ya hay un modal abierto, no hacemos nada más. Esto obliga al usuario a cerrarlo primero.
-    if (modal.style.display === 'block' || constellationModal.style.display === 'block') {
-        return;
+export function updateConstellationInfo(constellationMesh) {
+    if (constellationMesh && constellationMesh.userData.isConstellation) {
+        const constName = constellationMesh.userData.name;
+        constellationNameEl.textContent = constName;
+        constellationInfoEl.innerHTML = 'Aquí podría ir información local sobre la constelación.';
+        constellationImageEl.style.display = 'none';
+        constellationImageEl.src = '';
+        constellationModal.classList.add('visible');
+    } else {
+        constellationModal.classList.remove('visible');
     }
+}
 
-    const mouse = new THREE.Vector2();
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+async function onSceneClick(event) {
+    // Solo prevenimos el menú contextual si el clic es derecho.
+    if (event.button === 2) event.preventDefault();
 
     const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, camera);
+
+    if (controls.isLocked) {
+        // Si los controles están bloqueados (modo FPS), el rayo sale del centro de la pantalla.
+        raycaster.setFromCamera({ x: 0, y: 0 }, camera);
+    } else {
+        // Si los controles no están bloqueados, usamos la posición del ratón.
+        raycaster.setFromCamera({ x: (event.clientX / window.innerWidth) * 2 - 1, y: -(event.clientY / window.innerHeight) * 2 + 1 }, camera);
+    }
 
     const intersects = raycaster.intersectObjects(pickableObjects, true);
     if (intersects.length === 0) return;
@@ -81,95 +80,44 @@ async function onSceneClick(event) {
     const clicked = intersects[0].object;
     const planetData = clicked.userData || {};
 
-    let targetGroup = null;
-    if (clicked === sun) targetGroup = sun;
-    else if (scene.userData._moon && clicked === scene.userData._moon) {
-        targetGroup = scene.userData._moonGroup;
-    } else {
-        const idx = planetMeshes.indexOf(clicked);
-        if (idx >= 0) targetGroup = planetGroups[idx];
-    }
+    // Verificamos si el objeto clickeado es parte de los planetas o el sol
+    const isPlanetOrSun = planetMeshes.includes(clicked) || clicked === sun || (scene.userData._moon && clicked === scene.userData._moon);
 
-    if (targetGroup) {
-        followTarget = targetGroup;
-        controls.enabled = false;
-
-        planetNameEl.textContent = planetData.name || 'Objeto';
-        planetInfoEl.innerHTML = `
-      <strong>Mass:</strong> ${planetData.mass || '-'}<br>
-      <strong>Radius:</strong> ${planetData.radius || '-'}<br>
-      <br><span class="description">${planetData.description || ''}</span><br><br>
-      ${formatExtraInfo(planetData)}
-    `;
-        modal.style.display = 'block';
-    } else if (clicked.userData && clicked.userData.isConstellation) {
-        const constName = clicked.userData.name;
-        constellationNameEl.textContent = constName;
-        constellationInfoEl.innerHTML = 'Aquí podría ir información local sobre la constelación.';
-        constellationImageEl.style.display = 'none';
-        constellationImageEl.src = '';
-        constellationModal.style.display = 'block';
-    }
-}
-
-function exitFollowMode(event) {
-    if (event) event.stopPropagation(); // Detiene la propagación del clic
-    modal.style.display = 'none';
-    followTarget = null;
-    isZoomingOut = true; // Activamos el modo de alejamiento
-    updatePlanetStats(null, null);
-}
-
-function closeConstellationModal(event) {
-    if (event) event.stopPropagation(); // Detiene la propagación del clic
-    constellationModal.style.display = 'none';
+    // La lógica de clic para constelaciones se ha movido a la función de hover.
 }
 
 function returnToSun() {
-    // Salimos de cualquier modo de seguimiento que pudiera estar activo
-    exitFollowMode();
-    // Movemos la cámara a una posición inicial y apuntamos al centro
-    camera.position.set(0, 50, 200);
-    controls.target.set(0, 0, 0);
-    controls.minDistance = originalMinDistance;
-    controls.maxDistance = originalMaxDistance;
+    // Movemos la cámara a la posición inicial cerca del sol.
+    // La cámara ya está dentro del objeto de control, así que movemos ese objeto.
+    controls.getObject().position.set(0, 50, 200);
+    // Para mirar al sol, necesitamos desbloquear, mirar y volver a bloquear, o simplemente teletransportar.
 }
 
 function createConstellationMenuUI() {
-    const container = document.querySelector('.constellation-menu-container');
-    const toggleBtn = container.querySelector('.constellation-menu-toggle');
-    const optionsList = container.querySelector('.constellation-options');
+    // Seleccionamos el contenido del menú desplegable principal
+    const mainMenuContent = document.querySelector('.dropdown-content');
+    if (!mainMenuContent) return;
 
     const options = [
         { text: 'Mostrar Constelaciones', action: () => {
             constellationGroup.visible = true;
         }},
-        { text: 'Ocultar Constelaciones', action: () => { constellationGroup.visible = false; }}
+        { text: 'Ocultar Constelaciones', action: () => { 
+            constellationGroup.visible = false; 
+        }}
     ];
 
-    optionsList.innerHTML = ''; // Limpiamos las opciones existentes
+    // Añadimos las opciones de constelaciones al menú principal
     options.forEach(opt => {
-        const li = document.createElement('li');
-        const btn = document.createElement('button');
-        btn.textContent = opt.text;
-        btn.addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.textContent = opt.text;
+        link.href = '#'; // Para que parezca un enlace
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
             opt.action();
-            optionsList.style.display = 'none';
+            mainMenuContent.classList.remove('show'); // Cerramos el menú al hacer clic
         });
-        li.appendChild(btn);
-        optionsList.appendChild(li);
-    });
-
-    toggleBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        optionsList.style.display = optionsList.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // Listener global para cerrar el menú de constelaciones si se hace clic en cualquier otro lugar
-    window.addEventListener('click', () => {
-        if (optionsList.style.display === 'block') {
-            optionsList.style.display = 'none';
-        }
+        mainMenuContent.appendChild(link);
     });
 }
 
@@ -189,14 +137,34 @@ function setupMainMenu() {
 }
 
 export function initUI() {
-    window.addEventListener('contextmenu', onSceneClick); // Cambiado a clic derecho.
-    if (closeBtn) closeBtn.addEventListener('click', exitFollowMode);
-    if (constellationCloseBtn) constellationCloseBtn.addEventListener('click', closeConstellationModal);
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) exitFollowMode(e);
-        if (e.target === constellationModal) closeConstellationModal(e);
+    // El clic izquierdo se usa para seleccionar objetos.
+    window.addEventListener('click', onSceneClick);
+
+    // Listener para cerrar modales al hacer clic izquierdo fuera de ellos.
+    // Al hacer clic en cualquier lugar, se activa el modo vuelo.
+    document.body.addEventListener('click', (event) => {
+        if (constellationModal.style.display !== 'block') {
+            controls.lock();
+        }
     });
 
+    window.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+    });
+
+    controls.addEventListener('lock', () => {
+        // Cuando los controles se bloquean, el menú principal se oculta.
+        document.querySelector('.dropdown-content').classList.remove('show');
+    });
+
+    // Mostramos u ocultamos la mirilla dependiendo del estado de los controles
+    const crosshair = document.getElementById('crosshair');
+    controls.addEventListener('lock', () => { crosshair.style.display = 'block'; });
+    controls.addEventListener('unlock', () => { crosshair.style.display = 'none'; });
+
+
+    // El navegador desbloquea el puntero automáticamente al soltar el clic o presionar ESC.
+    // No necesitamos un listener para 'unlock' o 'mouseup'.
     document.getElementById('home-btn').addEventListener('click', returnToSun);
 
     createConstellationMenuUI();

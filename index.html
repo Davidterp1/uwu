@@ -2,13 +2,13 @@
 <html>
 <head>
 <title>Solar System 3D</title>
-<link rel="icon" type="image/jpeg" href="./earth.jpg">
+<link rel="icon" type="image/jpeg" href="recursos/earth.jpg">
 <link rel=stylesheet href="style.css">
 <script type="importmap">
     {
         "imports": {
             "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
-            "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/OrbitControls.js",
+            "three/examples/jsm/controls/PointerLockControls.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/PointerLockControls.js",
             "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js"
         }
     }
@@ -38,14 +38,6 @@
     </div>
   </div>
 
-  <div id="info-modal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2 id="planet-name"></h2>
-      <p id="planet-info"></p>
-    </div>
-  </div>
-
   <div id="constellation-modal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -54,19 +46,17 @@
       <img id="constellation-image" src="" alt="Imagen de la constelación" style="width: 100%; border-radius: 5px; margin-top: 10px; display: none;"/>
     </div>
   </div>
+
   <div id="planet-stats">
-    <h3 id="stats-name">Selecciona un planeta</h3>
-    <p id="stats-distance">Distancia al Sol: -</p>
-    <p id="stats-speed">Velocidad orbital: -</p>
+    <h3 id="stats-name"></h3>
+    <div class="stats-grid">
+      <p id="stats-distance"><span>Distancia al Sol</span><span>-</span></p>
+      <p id="stats-speed"><span>Velocidad orbital</span><span>-</span></p>
+    </div>
+    <p id="stats-description" class="description"></p>
+    <div id="stats-extra-info"></div>
   </div>
   
-  <div class="constellation-menu-container">
-    <button class="constellation-menu-toggle">Constelaciones</button>
-    <ul class="constellation-options">
-      <!-- Las opciones se generarán con JS -->
-    </ul>
-  </div>
-
   <!-- Botón para reabrir la ayuda -->
   <div id="help-icon-container">
     <button id="home-btn" title="Volver al Sol">☀️</button>
@@ -80,14 +70,18 @@
       <h2>Bienvenido al Explorador Cósmico</h2>
       <p>Aquí tienes unos consejos para empezar:</p>
       <ul>
-        <li>Usa el <strong>clic izquierdo y arrastra</strong> para rotar la cámara.</li>
-        <li>Usa la <strong>rueda del ratón</strong> para acercar y alejar.</li>
-        <li>Haz <strong>clic derecho</strong> en planetas y constelaciones para ver su información.</li>
-        <li>Presiona la tecla <strong>'C'</strong> para mostrar u ocultar las constelaciones.</li>
+        <li>Haz <strong>clic en la pantalla</strong> para activar el modo de vuelo (aparecerá una mirilla).</li>
+        <li>Usa el <strong>ratón</strong> para mirar a tu alrededor.</li>
+        <li>Usa <strong>W, A, S, D</strong> para moverte, <strong>Espacio</strong> para subir y <strong>Shift</strong> para bajar.</li>
+        <li><strong>Apunta</strong> con la mirilla a un planeta o constelación para ver su información.</li>
+        <li>Presiona <strong>Esc</strong> para liberar el ratón y poder usar los menús.</li>
       </ul>
       <button id="close-help-btn">¡Entendido!</button>
     </div>
   </div>
+
+  <!-- Mirilla para el modo de vuelo -->
+  <div id="crosshair">+</div>
 
   <script type="module" src="script.js"></script>
 </body>
