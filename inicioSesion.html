@@ -22,7 +22,7 @@
   </div>
     <audio src="recursos/inter.mp3" autoplay loop></audio>
        <video id="background-video" autoplay loop muted >
-  <source src="uwu.mp4" type="video/mp4">
+  <source src="recursos/uwu.mp4" type="video/mp4">
 </video>
   <div id="login-container">
     <h2>Iniciar Sesión</h2>
@@ -35,24 +35,6 @@
     </form>
 </div>
 <script>
-      // Función para compensar el zoom del navegador
-      function compensateForZoom() {
-        const loginContainer = document.getElementById('login-container');
-        if (!loginContainer) return;
-
-        // Obtenemos el nivel de zoom del dispositivo/navegador
-        const zoomLevel = window.devicePixelRatio || 1;
-        // Calculamos el factor de escala inverso
-        const scaleFactor = 1 / zoomLevel;
-
-        // Aplicamos la transformación de escala, manteniendo el centrado original
-        loginContainer.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;   
-      }
-
-      // Ejecutamos la función al cargar y al redimensionar la ventana 
-      window.addEventListener('load', compensateForZoom);
-      window.addEventListener('resize', compensateForZoom);
-
       // Lógica para el menú desplegable
       function setupMainMenu() {
         const toggleBtn = document.querySelector('.menu-toggle');

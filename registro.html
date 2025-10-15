@@ -38,24 +38,6 @@
 </div>
 
 <script>
-      // Función para compensar el zoom del navegador
-      function compensateForZoom() {
-        const loginContainer = document.getElementById('login-container');
-        if (!loginContainer) return;
-
-        // Obtenemos el nivel de zoom del dispositivo/navegador
-        const zoomLevel = window.devicePixelRatio || 1;
-        // Calculamos el factor de escala inverso
-        const scaleFactor = 1 / zoomLevel;
-
-        // Aplicamos la transformación de escala, manteniendo el centrado original
-        loginContainer.style.transform = `translate(-50%, -50%) scale(${scaleFactor})`;
-      }
-
-      // Ejecutamos la función al cargar y al redimensionar la ventana (el zoom dispara este evento)
-      window.addEventListener('load', compensateForZoom);
-      window.addEventListener('resize', compensateForZoom);
-
       // Lógica para el menú desplegable
       function setupMainMenu() {
         const toggleBtn = document.querySelector('.menu-toggle');

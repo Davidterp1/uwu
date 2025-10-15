@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { scene, camera, renderer, controls, loadingManager } from './core.js';
 import { sun, planetGroups, stationGroup, asteroidMetas, asteroidsInstanced, comets, pickableObjects, planetMeshes } from './celestialObjects.js';
 import { planets, moonData, stationData, CONSTELLATION_RADIUS } from './config.js';
-import { initUI, constellationLinesStore, updatePlanetInfo, updateConstellationInfo } from './ui.js';
-import { initConstellations, constellationGroup } from './constellations.js';
+import { initUI, updatePlanetInfo, updateConstellationInfo } from './ui.js';
+import { initConstellations, constellationGroup, constellationLinesStore } from './constellations.js';
 import { initBackground, createSupernova, activeSupernovas, blackHoles, createBlackHole, nebulaGroups } from './background.js';
 // ====== GESTOR DE CARGA ======
 const loadingScreen = document.getElementById('loading-screen');
@@ -144,21 +144,23 @@ function animate() {
     controls.getObject().position.y += velocity.y * delta;
   }
 
-  // Sol: rotación sobre su propio eje
-  sun.rotation.y += (planets[0].rotationSpeed || 0) * 0.005;
-
-  // Planetas: rotación y órbitas (optimizado: evitar crear vectores temporales dentro del loop)
-  for (let i = 0; i < planetGroups.length; i++) {
-    const group = planetGroups[i];
-    const data = planets[i + 1];
+  // Animación de todos los cuerpos celestes (Sol y Planetas)
+  for (let i = 0; i < planets.length; i++) {
+    const data = planets[i];
     if (!data) continue;
-    const mesh = group.children[0].children[0]; // El mesh está dentro del pivot
-    mesh.rotation.y += (data.rotationSpeed || 0) * 0.005;
-    
-    const angle = timeSmall * (data.orbitalSpeed || 0);
-    const r = data.orbitRadius || 10; 
-    group.position.x = Math.cos(angle) * r;
-    group.position.z = Math.sin(angle) * r;
+
+    if (i === 0) { // Es el Sol
+      sun.rotation.y += (data.rotationSpeed || 0) * 0.005;
+    } else { // Es un planeta
+      const group = planetGroups[i - 1];
+      const mesh = group.children[0].children[0]; // El mesh está dentro del pivot
+      mesh.rotation.y += (data.rotationSpeed || 0) * 0.005;
+      
+      const angle = timeSmall * (data.orbitalSpeed || 0);
+      const r = data.orbitRadius || 10; 
+      group.position.x = Math.cos(angle) * r;
+      group.position.z = Math.sin(angle) * r;
+    }
   }
 
   // Luna
