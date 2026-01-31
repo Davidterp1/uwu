@@ -1,0 +1,956 @@
+/* ====== Pantalla de Carga Espectacular ====== */
+#loading-screen {
+  position: relative; /* Necesario para posicionar el pseudo-elemento */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: hidden; /* Para que las estrellas no se salgan */
+  transition: opacity 1s ease-out, visibility 1s ease-out;
+  font-family: "Space Age", sans-serif;
+}
+
+/* La Nebulosa */
+#loading-screen::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: 
+        radial-gradient(ellipse at 50% 50%, rgba(130, 80, 200, 0.4) 0%, transparent 40%),
+        radial-gradient(ellipse at 20% 70%, rgba(80, 120, 220, 0.3) 0%, transparent 35%),
+        radial-gradient(ellipse at 80% 30%, rgba(220, 80, 120, 0.3) 0%, transparent 35%),
+        radial-gradient(ellipse at 85% 85%, rgba(80, 220, 150, 0.25) 0%, transparent 40%);
+    filter: blur(40px); /* Desenfoque para un efecto gaseoso */
+    animation: rotate-nebula 200s linear infinite;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1; /* Para que esté por encima de las estrellas */
+}
+
+.loading-content h1 {
+  color: #00bfff;
+  text-shadow: 0 0 15px rgba(0, 191, 255, 0.8);
+  animation: fade-in-glow 3s ease-out;
+  margin-bottom: 25px;
+  font-size: 2.5em;
+  font-weight: normal;
+}
+
+.progress-bar-container {
+  width: 300px;
+  height: 20px;
+  border: 2px solid #00bfff;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  animation: pulse-glow 2.5s infinite ease-in-out;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #00bfff, #0077ff);
+  transition: width 0.4s ease-out;
+}
+
+.progress-text {
+  margin-top: 15px;
+  color: #f1f1f1;
+  font-size: 1.2em;
+  text-shadow: 0 0 5px #00bfff;
+  animation: fade-in-glow 3s ease-out 0.5s;
+  animation-fill-mode: forwards; /* Mantiene el estado final */
+  opacity: 0;
+}
+
+/* --- Animaciones de Carga --- */
+@keyframes rotate-nebula {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(0, 191, 255, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(0, 191, 255, 0.9); }
+}
+
+@keyframes pulse-text {
+    0%, 100% { text-shadow: 0 0 15px rgba(0, 191, 255, 0.8); opacity: 0.9; }
+    50% { text-shadow: 0 0 25px rgba(0, 191, 255, 1); opacity: 1; }
+}
+
+@keyframes fade-in-glow {
+    from { opacity: 0; text-shadow: 0 0 5px rgba(0, 191, 255, 0.2); }
+    to   { opacity: 1; text-shadow: 0 0 15px rgba(0, 191, 255, 0.8); }
+}
+
+body {
+  background-attachment: fixed;
+  margin: 0;
+  height: 100vh;
+  background-color: black;
+  overflow: hidden;
+}
+
+
+
+/* Modal styles */
+
+/* Estilo del panel de información del planeta (ahora es un panel de hover) */
+.modal-content {
+  background-color: rgba(0, 0, 0, 0.65); /* Aumentamos transparencia */
+  backdrop-filter: blur(5px);
+  color: #f1f1f1; 
+  position: absolute;
+  padding: 20px;
+  border: 1px solid rgba(0, 191, 255, 0.5);
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
+}
+
+/* Estilos para el panel de ayuda */
+/* Estilo específico para el modal de constelaciones, para que aparezca a la izquierda */
+#constellation-modal {
+  position: fixed;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%) translateX(-20px); /* Initial state for slide-in */
+  width: 300px;
+  opacity: 0;
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out; /* Add transform to transition */
+  pointer-events: none; /* Para que no bloquee clics */
+  z-index: 20;
+}
+
+#constellation-modal.visible {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0); /* Final state */
+}
+/* Estilos para el panel de ayuda */
+.help-content {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 450px;
+  text-align: center;
+}
+
+.help-content ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+  margin: 20px 0;
+}
+
+.help-content li {
+  margin-bottom: 12px;
+  font-size: 1.1em;
+  color: #ddd;
+}
+
+.help-content strong {
+  color: #00bfff;
+}
+
+#close-help-btn {
+  background-color: rgba(0, 191, 255, 0.5);
+  border: 1px solid rgba(0, 191, 255, 0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-family: "Space Age", sans-serif;
+}
+
+#close-help-btn:hover {
+  background-color: rgba(0, 191, 255, 0.8);
+}
+
+/* Estilo para la imagen dentro del modal de constelación */
+#constellation-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.close {
+  color: #ccc;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dropdown-content a:hover {
+  background-color: rgba(0, 191, 255, 0.3);
+  border-color: rgba(0, 191, 255, 0.5); /* El borde se ilumina un poco */
+}
+
+/* Estilos para los enlaces del menú, necesarios para la animación en cascada */
+.dropdown-content a {
+  font-family: "Space Age", sans-serif;
+  color: white;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+  transition: background-color 0.3s, border-color 0.3s;
+  border-bottom: 1px solid rgba(0, 191, 255, 0.2); /* Borde sutil */
+}
+
+/* ====== Menú Desplegable Futurista (Copiado de style.css) ====== */
+.menu-container {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  z-index: 1001; /* Asegura que esté sobre otros elementos */
+}
+
+.menu-toggle {
+  width: 50px;
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 191, 255, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 6px;
+  box-shadow: 0 0 10px rgba(0, 191, 255, 0.5), inset 0 0 5px rgba(0, 191, 255, 0.3);
+  transition: box-shadow 0.3s, background-color 0.3s;
+}
+
+.menu-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.8), inset 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.menu-toggle span {
+  width: 80%;
+  height: 2px;
+  background-color: #00bfff;
+  border-radius: 2px;
+  transition: background-color 0.3s;
+}
+
+.menu-toggle:hover span {
+  background-color: #fff;
+}
+
+.dropdown-content {
+  visibility: hidden; /* Usamos visibility en lugar de display para animar la entrada */
+  position: absolute;
+  right: 0; 
+  top: 120%; /* Un poco más abajo */
+  background-color: rgba(0, 0, 0, 0.65); /* Aumentamos transparencia */
+  backdrop-filter: blur(5px);
+  min-width: 180px;
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
+  border: 1px solid rgba(0, 191, 255, 0.5);
+  z-index: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  transform-origin: top right; /* El efecto de escala se origina en la esquina superior derecha */
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out, visibility 0.25s ease-out;
+  pointer-events: none; /* El menú no es interactivo cuando está oculto */
+}
+
+.dropdown-content.show { 
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto; /* Hacemos el menú interactivo cuando es visible */
+}
+
+/* Animación en cascada para los enlaces del menú */
+.dropdown-content.show a {
+  opacity: 0;
+  transform: translateX(-10px);
+  animation: slide-in 0.3s forwards ease-out;
+}
+
+/* Aplicamos un retraso escalonado a cada enlace */
+.dropdown-content.show a:nth-child(1) { animation-delay: 0.05s; }
+.dropdown-content.show a:nth-child(2) { animation-delay: 0.1s; }
+.dropdown-content.show a:nth-child(3) { animation-delay: 0.15s; }
+.dropdown-content.show a:nth-child(4) { animation-delay: 0.2s; }
+
+@keyframes slide-in {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Quitar el borde del último elemento para un acabado limpio */
+.dropdown-content a:last-child {
+  border-bottom: none;
+}
+
+/* --- Estilos para el Slider de Volumen --- */
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type=range]:focus {
+  outline: none;
+}
+
+/* Track (la barra) */
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 191, 255, 0.3);
+  border-radius: 5px;
+  border: 1px solid rgba(0, 191, 255, 0.2);
+}
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 191, 255, 0.3);
+  border-radius: 5px;
+  border: 1px solid rgba(0, 191, 255, 0.2);
+}
+
+/* Thumb (el control deslizante) */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #00bfff;
+  border: 2px solid #fff;
+  box-shadow: 0 0 8px rgba(0, 191, 255, 1);
+  margin-top: -7px; /* Centrar verticalmente */
+  transition: box-shadow 0.2s ease-in-out; /* Added transition */
+}
+input[type=range]::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #00bfff;
+  border: 2px solid #fff;
+  box-shadow: 0 0 8px rgba(0, 191, 255, 1);
+  transition: box-shadow 0.2s ease-in-out; /* Added transition */
+}
+
+@font-face {
+  font-family: "Space Age";
+  /* Asegúrate de que la ruta al archivo de la fuente es correcta. */
+  /* Asumo que está en una carpeta 'fonts'. */
+  src: url("../recursos/space age.ttf");
+}
+
+
+#login-container, #register-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10; /* sobre el canvas o video de fondo */
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 400px;
+  color: #f1f1f1;
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+}
+
+#planet-stats {
+    position: fixed;
+    top: 20px;
+    left: 20px; 
+    background: rgba(0,0,0,0.55); /* Aumentamos transparencia */
+    backdrop-filter: blur(5px);
+    padding: 25px 30px;
+    color: white;
+    font-family: 'Space Age', sans-serif;
+    border-radius: 8px;
+    font-size: 1.1em;
+    border: 1px solid rgba(0, 191, 255, 0.5);
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
+    z-index: 20;
+    width: 650px;
+  /* El botón de cierre está oculto por defecto en escritorio */
+  & .close {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+  }
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 8px 0;
+  padding: 0;
+}
+
+#stats-name {
+  font-size: 1.2em;
+  color: #00bfff;
+  text-shadow: 0 0 5px rgba(0, 191, 255, 0.7);
+  margin: 0;
+}
+
+#favorite-btn {
+  background: none;
+  border: none;
+  color: #00bfff;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0 5px;
+  transition: transform 0.2s, color 0.2s;
+}
+
+#favorite-btn:hover {
+  transform: scale(1.2);
+}
+
+#favorite-btn.is-favorite { color: #ffd700; }
+
+#planet-stats.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Estilos para la cuadrícula de estadísticas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Una sola columna para empezar */
+  gap: 4px;
+  margin: 8px 0;
+  border-top: 1px solid rgba(0, 191, 255, 0.2);
+  border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+  padding: 8px 0;
+}
+
+.stats-grid p {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font-size: 0.9em;
+}
+
+.stats-grid p span:first-child {
+  color: #aaa;
+}
+
+.stats-grid p span:last-child {
+  color: #f1f1f1;
+  font-weight: bold;
+}
+
+#stats-extra-info {
+  margin-top: 10px;
+  font-size: 0.85em;
+  line-height: 1.5;
+  color: #ccc;
+}
+
+#stats-extra-info strong {
+    color: #00bfff;
+}
+
+#login-container h2, #register-container h2 {
+  text-align: center;
+  font-size: 2em;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 10px rgba(0, 191, 255, 0.8);
+}
+
+#login-container form, #register-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+#planet-stats .description {
+  font-style: italic;
+  font-size: 0.85em;
+  color: #ccc;
+}
+
+#login-container label, #register-container label {
+  margin-bottom: 0.4rem;
+  font-size: 1em;
+  color: #ccc;
+}
+
+#login-container input, #register-container input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.4rem;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  color: #f1f1f1;
+  font-family: sans-serif;
+}
+
+#login-container button, #login-container input[type="submit"], #register-container button, #register-container input[type="submit"] {
+  background-color: rgba(0, 191, 255, 0.5);
+  border: 1px solid rgba(0, 191, 255, 0.8);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  font-family: "Space Age", sans-serif;
+  font-size: 1.2em;
+}
+
+#login-container button:hover, #login-container input[type="submit"]:hover {
+  background-color: rgba(0, 191, 255, 0.8);
+  box-shadow: 0 0 15px rgba(0, 191, 255, 1);
+}
+
+/* ====== Botón para abrir la ayuda ====== */
+#help-icon-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  display: flex;
+  gap: 10px;
+}
+
+button#open-help-btn, button#home-btn, button#constellation-toggle-btn, button#volume-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(0, 191, 255, 0.4);
+  border: 1px solid rgba(0, 191, 255, 0.7);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+button#open-help-btn:hover, button#home-btn:hover, button#constellation-toggle-btn:hover, button#volume-toggle-btn:hover {
+  background-color: rgba(0, 191, 255, 0.7);
+  transform: scale(1.1);
+}
+
+.active-btn {
+  box-shadow: 0 0 15px rgba(0, 255, 150, 0.9);
+  border-color: rgba(0, 255, 150, 1);
+}
+
+/* ====== Contenedor de Volumen Independiente ====== */
+#volume-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+#volume-slider-popup {
+  display: none;
+  position: absolute;
+  bottom: 50px; /* Posicionado sobre el botón */
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(5px);
+  padding: 15px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 191, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.6);
+  width: 150px;
+}
+
+#volume-slider-popup.show {
+  display: block;
+}
+
+/* ====== Controles de Tiempo Curvos ====== */
+#time-slider-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: 200px;
+  height: 100px;
+}
+
+#time-slider-track {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+#time-slider-path {
+  stroke: rgba(0, 191, 255, 0.4);
+  stroke-width: 2;
+  fill: none;
+  filter: drop-shadow(0 0 3px rgba(0, 191, 255, 0.5));
+}
+
+#time-slider-handle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: #00bfff;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 10px rgba(0, 191, 255, 1);
+  cursor: pointer;
+  transform: translate(-50%, -50%); /* Centramos el handle en su posición */
+  transition: box-shadow 0.2s;
+}
+
+#time-slider-handle:hover {
+  box-shadow: 0 0 20px rgba(0, 191, 255, 1.5);
+}
+
+.time-display {
+  position: absolute;
+  bottom: -10px; /* Lo bajamos un poco para que no choque con el arco */
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: "Space Age", sans-serif;
+  color: #00bfff;
+  font-size: 1.1em;
+  text-shadow: 0 0 5px rgba(0, 191, 255, 0.7);
+  padding: 2px 8px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 4px;
+}
+
+/* ====== Mirilla (Crosshair) ====== */
+#crosshair {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none; /* Para que no interfiera con los clics */
+  z-index: 1002;
+  display: none; /* Oculto por defecto */
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+#crosshair svg {
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+}
+
+.crosshair-outer, .crosshair-inner {
+  stroke: white;
+  fill: white;
+  transition: stroke 0.3s ease, fill 0.3s ease;
+}
+
+.crosshair-outer.target-hover, .crosshair-inner.target-hover {
+  stroke: #00bfff; /* Color cian al apuntar */
+  fill: #00bfff;
+}
+
+/* ====== Indicador de Zoom Circular ====== */
+#zoom-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1003; /* Por encima de la mirilla */
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+#zoom-indicator.visible {
+  opacity: 0.8;
+}
+
+#zoom-indicator svg {
+  transform: rotate(-90deg); /* Para que el progreso empiece desde arriba */
+}
+
+.zoom-indicator-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 4;
+}
+
+.zoom-indicator-progress {
+  fill: none;
+  stroke: #00bfff;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear; /* Suaviza la animación controlada por JS */
+}
+
+/* ====== Estilos para Móviles y Tablets ====== */
+@media (max-width: 768px) {
+  /* Hacemos que el panel de estadísticas ocupe casi todo el ancho y se posicione arriba */
+  #planet-stats {
+    width: 90%;
+    left: 5%;
+    top: 10px;
+    transform: none;
+    font-size: 1em;
+    padding: 15px;
+  }
+
+  /* Mostramos el botón de cierre en el panel de planetas en móvil */
+  #planet-stats .close {
+    display: block;
+  }
+
+  /* Ajustamos el contenedor de login/registro para que no se desborde */
+  #login-container {
+    width: 90%;
+    max-width: 400px; /* Mantenemos un máximo para que no sea demasiado ancho en tablets */
+    padding: 1.5rem;
+  }
+
+  /* Ajustamos el modal de ayuda */
+  .help-content {
+    width: 90%;
+  }
+
+  /* Ocultamos el panel de constelaciones que se superpone, ya que no es práctico en móvil */
+  #constellation-modal {
+    display: none !important;
+  }
+}
+
+/* ====== Estilos de Formularios (Copiado de style.css) ====== */
+.form-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9em;
+}
+
+.form-link a {
+  color: #00bfff; /* Color cian característico */
+  text-decoration: none; /* Quitamos el subrayado */
+  font-weight: bold;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.form-link a:hover {
+  color: #ffffff; /* Se ilumina a blanco al pasar el ratón */
+  text-shadow: 0 0 8px rgba(0, 191, 255, 0.8);
+}
+
+/* ====== Contenedor de Mensajes para Formularios ====== */
+#message-container {
+  padding: 10px;
+  margin-bottom: 1rem;
+  border-radius: 0.4rem;
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: bold;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, max-height 0.3s ease, padding 0.3s ease;
+}
+
+#message-container.show {
+  opacity: 1;
+  max-height: 100px; /* Suficiente para varias líneas */
+  padding: 10px;
+}
+
+#message-container.error {
+  background-color: rgba(255, 80, 80, 0.2);
+  color: #ffcdd2;
+  border: 1px solid rgba(255, 80, 80, 0.5);
+}
+
+#message-container.success {
+  background-color: rgba(80, 255, 80, 0.2);
+  color: #d4ffda;
+  border: 1px solid rgba(80, 255, 80, 0.5);
+}
+
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+@font-face {
+  font-family: "Space Age";
+  /* Asegúrate de que la ruta al archivo de la fuente es correcta. */
+  /* Asumo que está en una carpeta 'fonts'. */
+  src: url("../recursos/space age.ttf");
+}
+
+/* ====== Estilos para la Página de Galería ====== */
+#gallery-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto; /* Permite hacer scroll si el contenido es muy largo */
+  padding: 80px 40px 40px 40px; /* Espacio para el menú y los bordes */
+  z-index: 5;
+  color: #f1f1f1;
+  font-family: sans-serif;
+}
+
+#gallery-container h1 {
+  text-align: center;
+  font-family: "Space Age", sans-serif;
+  font-size: 2.5em;
+  color: #00bfff;
+  text-shadow: 0 0 15px rgba(0, 191, 255, 0.8);
+  margin-bottom: 40px;
+}
+
+.gallery-grid {
+  display: grid;
+  /* Crea columnas flexibles que se adaptan al tamaño de la pantalla */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  max-width: 1400px;
+  margin: 0 auto; /* Centra la cuadrícula */
+}
+
+.gallery-card {
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(0, 191, 255, 0.4);
+  border-radius: 8px;
+  overflow: hidden; /* Asegura que la imagen no se salga del borde redondeado */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 25px rgba(0, 191, 255, 0.5);
+
+  img {
+    transform: scale(1.1); /* Keep the scale effect */
+    transition: transform 0.5s ease-in-out; /* Changed duration and easing */
+  }
+}
+
+.gallery-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover; /* La imagen cubre el espacio sin deformarse */
+}
+
+.gallery-card h3 {
+  font-family: "Space Age", sans-serif;
+  color: #00bfff;
+  margin: 15px 20px 10px 20px;
+}
+
+.gallery-card p {
+  margin: 0 20px 20px 20px;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+/* ====== Estilos para el Modal de la Galería ====== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1010; /* Por encima de todo lo demás */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content-large {
+  position: relative;
+  background-color: #111;
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 191, 255, 0.4);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.95);
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Added opacity */
+}
+
+.modal-overlay.visible .modal-content-large {
+  transform: scale(1);
+}
+
+.modal-content-large img {
+  width: 100%;
+  max-height: 65vh;
+  object-fit: contain; /* Muestra la imagen completa sin recortar */
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.modal-content-large h3 {
+  font-family: "Space Age", sans-serif;
+  color: #00bfff;
+  text-align: center;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  color: #aaa;
+  font-size: 35px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-modal:hover {
+  color: #fff;
+}

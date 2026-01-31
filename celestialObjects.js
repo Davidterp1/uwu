@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { scene, gltfLoader, loadTextureCached, getAssetUrl } from './core.js';
-import { planets, moonData, stationData } from './config.js';
+import { planets, moonData } from './config.js';
 
 const commonSphereGeoCache = new Map();
 function getSphereGeometry(size, detail = 32) {
@@ -8,7 +8,7 @@ function getSphereGeometry(size, detail = 32) {
     if (!commonSphereGeoCache.has(key)) {
         commonSphereGeoCache.set(key, new THREE.SphereGeometry(size, detail, detail));
     }
-    return commonSphereGeoCache.get(key);
+    return (commonSphereGeoCache.get(key));
 }
 
 export const pickableObjects = [];
@@ -67,12 +67,28 @@ for (let i = 1; i < planets.length; i++) {
         });
         const ringMesh = new THREE.Mesh(ringGeom, ringMat);
         ringMesh.receiveShadow = true;
-        if (p.name !== 'Uranus') ringMesh.rotation.x = -0.5 * Math.PI;
+        if (p.name !== 'Urano') ringMesh.rotation.x = -0.5 * Math.PI;
         pivot.add(ringMesh);
-        if (p.name === 'Saturn' || p.name === 'Uranus') {
+        if (p.name === 'Saturno' || p.name === 'Urano') {
             mesh.renderOrder = 0;
             ringMesh.renderOrder = 1;
         }
+    }
+
+    // Crear lunas si el planeta las tiene
+    if (p.moons && Array.isArray(p.moons)) {
+        p.moons.forEach(moonData => {
+            const moon = new THREE.Mesh(
+                getSphereGeometry(moonData.size, 16),
+                new THREE.MeshStandardMaterial({ map: loadTextureCached(moonData.texture) })
+            );
+            moon.userData = { ...moonData, isMoon: true }; // Añadimos todos los datos y una bandera
+            const moonGroup = new THREE.Group();
+            moonGroup.add(moon);
+            pivot.add(moonGroup); // La luna orbita el pivote del planeta
+
+            pickableObjects.push(moon);
+        });
     }
 
     scene.add(createOrbitLine(p.orbitRadius || 10));
@@ -83,11 +99,11 @@ for (let i = 1; i < planets.length; i++) {
 }
 
 // ====== LUNA ======
-const earthIndex = planets.findIndex(pl => pl.name === 'Earth');
+const earthIndex = planets.findIndex(pl => pl.name === 'Tierra');
 if (earthIndex >= 0 && planetGroups[earthIndex - 1]) {
     const earthGroup = planetGroups[earthIndex - 1];
     const moon = new THREE.Mesh(getSphereGeometry(moonData.size, 16), new THREE.MeshStandardMaterial({ map: loadTextureCached(moonData.texture) }));
-    moon.userData = moonData;
+    moon.userData = { ...moonData, isMoon: true };
     const moonGroup = new THREE.Group();
     moonGroup.add(moon);
     earthGroup.add(moonGroup);
@@ -99,18 +115,32 @@ if (earthIndex >= 0 && planetGroups[earthIndex - 1]) {
 }
 
 // ====== ESTACION (GLTF) ======
-export const stationGroup = new THREE.Group();
-scene.add(stationGroup);
-gltfLoader.load(getAssetUrl('models/estacion.glb'), gltf => {
-    const model = gltf.scene;
-    model.scale.set(0.01, 0.01, 0.01);
-    stationGroup.add(model);
-}, undefined, err => console.error(err));
-pickableObjects.push(stationGroup);
+// export const stationGroup = new THREE.Group();
+// scene.add(stationGroup);
+// gltfLoader.load(getAssetUrl('models/estacion.glb'), gltf => {
+//     const model = gltf.scene;
+//     model.scale.set(0.01, 0.01, 0.01);
+//
+//     // Buscamos la parte móvil de la estación para animarla después.
+//     // Suponemos que es el primer hijo con geometría (la parte giratoria).
+//     const rotatingPart = model.children.find(child => child.isMesh);
+//     if (rotatingPart) {
+//         rotatingPart.name = 'station_rotating_part';
+//     }
+//
+//     // Nos aseguramos de que la estación y todas sus partes estén en la capa 0
+//     // para que no sean afectadas por luces de otras capas (como la del púlsar en la capa 2).
+//     model.traverse(child => {
+//         child.layers.set(0);
+//     });
+//
+//     stationGroup.add(model);
+// }, undefined, err => console.error(err));
+// pickableObjects.push(stationGroup);
 
 // ====== CINTURÓN DE ASTEROIDES (InstancedMesh) ======
 const asteroidCount = 1800;
-const asteroidGeo = new THREE.SphereGeometry(0.05, 4, 4);
+const asteroidGeo = new THREE.SphereGeometry(0.05, 4, 4); // eslint-disable-line no-unused-vars
 const asteroidMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
 export const asteroidsInstanced = new THREE.InstancedMesh(asteroidGeo, asteroidMat, asteroidCount);
 asteroidsInstanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);

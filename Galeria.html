@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Galería - Solar System 3D</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="recursos/earth.jpg">
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
+            "three/examples/jsm/controls/PointerLockControls.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/PointerLockControls.js",
+            "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js",
+            "three/examples/jsm/objects/Lensflare.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/objects/Lensflare.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div class="menu-container">
+      <button class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="dropdown-content"></div>
+  </div>
+
+    <!-- Fondo y audio comunes -->
+    <audio src="recursos/inter.mp3" autoplay loop></audio>
+    <video id="background-video" autoplay loop muted>
+        <source src="recursos/uwu.mp4" type="video/mp4">
+    </video>
+
+    <!-- Contenido específico de la Galería -->
+    <div id="gallery-container">
+        <h1>Galería Cósmica</h1>
+        <div class="gallery-grid">
+
+            <!-- Tarjeta para los Pilares de la Creación -->
+            <div class="gallery-card">
+                <img src="recursos/pilares.avif" alt="Pilares de la Creación">
+                <h3>Pilares de la Creación</h3>
+                <p>Una de las imágenes más famosas del Hubble. Son gigantescas columnas de gas y polvo interestelar en la Nebulosa del Águila, donde nacen nuevas estrellas.</p>
+            </div>
+
+            <!-- Tarjeta para la Nebulosa del Cangrejo -->
+            <div class="gallery-card">
+                <img src="recursos/camgrejo.jpg" alt="Nebulosa del Cangrejo">
+                <h3>Nebulosa del Cangrejo</h3>
+                <p>El remanente de una supernova observada en la Tierra en el año 1054. En su centro se encuentra un púlsar que gira 30 veces por segundo.</p>
+            </div>
+
+            <!-- Tarjeta para la Galaxia de Andrómeda -->
+            <div class="gallery-card">
+                <img src="recursos/andromeda.jpg" alt="Galaxia de Andrómeda">
+                <h3>Galaxia de Andrómeda</h3>
+                <p>La galaxia espiral más cercana a la nuestra, a 2.5 millones de años luz. Está en curso de colisión con la Vía Láctea, un evento que ocurrirá en 4.5 mil millones de años.</p>
+            </div>
+
+            <!-- Tarjeta para un Agujero Negro (Visualización) -->
+            <div class="gallery-card">
+                <img src="recursos/gargantua.jpg" alt="Visualización de un Agujero Negro">
+                <h3>Agujero Negro (Gargantúa)</h3>
+                <p>Una famosa visualización científica de un agujero negro supermasivo, creada para la película Interstellar, que muestra cómo la gravedad curva la luz del disco de acreción.</p>
+            </div>
+
+            <!-- Tarjeta para la Nebulosa Cabeza de Caballo -->
+            <div class="gallery-card">
+                <img src="recursos/horsehead_nebula.jpg" alt="Nebulosa Cabeza de Caballo">
+                <h3>Nebulosa Cabeza de Caballo</h3>
+                <p>Parte de la nube molecular de Orión, esta icónica nebulosa oscura tiene su forma por la silueta de una densa nube de gas y polvo frente a la nebulosa de emisión IC 434.</p>
+            </div>
+
+            <!-- Tarjeta para el Campo Profundo del Hubble -->
+            <div class="gallery-card">
+                <img src="recursos/hubble_deep_field.jpg" alt="Campo Profundo del Hubble">
+                <h3>Campo Profundo del Hubble</h3>
+                <p>Una imagen de una pequeña región en la constelación de la Osa Mayor, que revela miles de galaxias. Es una de las imágenes más importantes en la historia de la astronomía.</p>
+            </div>
+
+            <!-- Tarjeta para Júpiter -->
+            <div class="gallery-card">
+                <img src="recursos/jupiter_juno.jpg" alt="Júpiter y su Gran Mancha Roja">
+                <h3>Júpiter y su Gran Mancha Roja</h3>
+                <p>El planeta más grande del sistema solar, un gigante gaseoso cuya atmósfera presenta una gigantesca tormenta anticiclónica conocida como la Gran Mancha Roja, activa durante siglos.</p>
+            </div>
+
+            <!-- Tarjeta para la Nebulosa del Anillo -->
+            <div class="gallery-card">
+                <img src="recursos/ring_nebula.jpg" alt="Nebulosa del Anillo">
+                <h3>Nebulosa del Anillo (M57)</h3>
+                <p>Una nebulosa planetaria en la constelación de Lyra. Es el remanente de una estrella similar al Sol que ha expulsado sus capas exteriores al final de su vida.</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initMenu } from './menu.js';
+        // Inicializa solo el menú, sin dependencias de la escena 3D
+        initMenu(false); // Se pasa false para indicar que no hay escena 3D
+    </script>
+
+    <script type="module" src="galleryLogic.js"></script>
+
+    <!-- ====== Modal para la Imagen Ampliada ====== -->
+    <div id="image-modal" class="modal-overlay">
+        <div class="modal-content-large">
+            <span class="close-modal">&times;</span>
+            <img id="modal-image" src="" alt="Imagen ampliada del cosmos">
+            <h3 id="modal-title"></h3>
+            <p id="modal-description"></p>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+[
+    {
+        "name": "Orion",
+        "stars": [
+            {"ra": 88.7928, "dec": 7.407, "mag": 0.42, "name": "Betelgeuse"},
+            {"ra": 81.282, "dec": 6.349, "mag": 1.64, "name": "Bellatrix"},
+            {"ra": 78.634, "dec": -8.2016, "mag": 0.18, "name": "Rigel"},
+            {"ra": 86.939, "dec": -9.6689, "mag": 2.07, "name": "Saiph"},
+            {"ra": 84.053, "dec": -1.2019, "mag": 1.69, "name": "Alnilam"},
+            {"ra": 85.189, "dec": -1.942, "mag": 1.88, "name": "Alnitak"},
+            {"ra": 83.0016, "dec": -0.298, "mag": 2.20, "name": "Mintaka"},
+            {"ra": 83.7845, "dec": 9.9338, "mag": 3.47, "name": "Meissa"},
+            {"ra": 84.478, "dec": -5.391, "mag": 4.0, "name": "Orion Nebula"},
+            {"ra": 83.85, "dec": -5.90, "mag": 2.75, "name": "Iota Orionis"}
+        ],
+        "lines": [
+            ["Betelgeuse", "Bellatrix"], ["Betelgeuse", "Alnitak"], ["Bellatrix", "Mintaka"],
+            ["Alnitak", "Alnilam"], ["Alnilam", "Mintaka"], ["Alnitak", "Saiph"],
+            ["Mintaka", "Rigel"], ["Meissa", "Bellatrix"], ["Alnilam", "Iota Orionis"],
+            ["Iota Orionis", "Orion Nebula"]
+        ]
+    },
+    {
+        "name": "Ursa Major",
+        "stars": [
+            {"ra": 165.4599, "dec": 56.3822, "mag": 2.37, "name": "Merak"},
+            {"ra": 178.4572, "dec": 53.6946, "mag": 2.44, "name": "Phecda"},
+            {"ra": 183.856, "dec": 57.0325, "mag": 3.31, "name": "Megrez"},
+            {"ra": 193.5068, "dec": 55.9598, "mag": 1.77, "name": "Alioth"},
+            {"ra": 200.9814, "dec": 54.9252, "mag": 2.23, "name": "Mizar"},
+            {"ra": 206.8856, "dec": 49.3133, "mag": 1.86, "name": "Alkaid"},
+            {"ra": 134.80, "dec": 48.04, "mag": 3.14, "name": "Talitha"},
+            {"ra": 155.58, "dec": 41.49, "mag": 3.06, "name": "Tania Australis"},
+            {"ra": 154.27, "dec": 42.91, "mag": 3.45, "name": "Tania Borealis"}
+        ],
+        "lines": [
+            ["Dubhe", "Merak"], ["Merak", "Phecda"], ["Phecda", "Megrez"],
+            ["Megrez", "Alioth"], ["Alioth", "Mizar"], ["Mizar", "Alkaid"],
+            ["Megrez", "Dubhe"], ["Phecda", "Tania Australis"], ["Tania Australis", "Tania Borealis"],
+            ["Merak", "Talitha"]
+        ]
+    },
+    {
+        "name": "Cassiopeia",
+        "stars": [
+            {"ra": 10.125, "dec": 56.5371, "mag": 2.24, "name": "Schedar"},
+            {"ra": 2.29166, "dec": 59.1496, "mag": 2.28, "name": "Caph"},
+            {"ra": 14.175, "dec": 60.7166, "mag": 2.47, "name": "Gamma Cassiopeiae"},
+            {"ra": 21.454, "dec": 60.2352, "mag": 2.68, "name": "Ruchbah"},
+            {"ra": 28.5958, "dec": 63.6699, "mag": 3.35, "name": "Segin"}
+        ],
+        "lines": [
+            ["Segin", "Ruchbah"], ["Ruchbah", "Gamma Cassiopeiae"],
+            ["Gamma Cassiopeiae", "Schedar"], ["Schedar", "Caph"]
+        ]
+    },
+    {
+        "name": "Scorpius",
+        "stars": [
+            {"ra": 247.3519, "dec": -26.4318, "mag": 0.91, "name": "Antares"},
+            {"ra": 240.0833, "dec": -22.6215, "mag": 2.29, "name": "Dschubba"},
+            {"ra": 241.359, "dec": -19.8053, "mag": 2.62, "name": "Acrab"},
+            {"ra": 264.3297, "dec": -42.9978, "mag": 1.86, "name": "Sargas"},
+            {"ra": 263.4022, "dec": -37.10375, "mag": 1.62, "name": "Shaula"},
+            {"ra": 265.622, "dec": -39.02985, "mag": 2.39, "name": "Girtab"},
+            {"ra": 262.691, "dec": -37.2957, "mag": 2.70, "name": "Lesath"},
+            {"ra": 252.5426, "dec": -34.2925, "mag": 2.29, "name": "Wei"},
+            {"ra": 239.71, "dec": -26.11, "mag": 2.89, "name": "Fang"}
+        ],
+        "lines": [
+            ["Acrab", "Dschubba"], ["Dschubba", "Fang"], ["Fang", "Antares"],
+            ["Antares", "Wei"], ["Wei", "Shaula"], ["Shaula", "Lesath"],
+            ["Lesath", "Girtab"], ["Girtab", "Sargas"]
+        ]
+    },
+    {
+        "name": "Ursa Minor",
+        "stars": [
+            {"ra": 37.95, "dec": 89.26, "mag": 2.0, "name": "Polaris"},
+            {"ra": 222.68, "dec": 74.16, "mag": 2.1, "name": "Kochab"},
+            {"ra": 230.18, "dec": 71.83, "mag": 3.0, "name": "Pherkad"},
+            {"ra": 260.37, "dec": 86.59, "mag": 4.3, "name": "Yildun"},
+            {"ra": 251.49, "dec": 82.04, "mag": 4.9, "name": "Epsilon UMi"},
+            {"ra": 236.01, "dec": 77.79, "mag": 4.2, "name": "Zeta UMi"}
+        ],
+        "lines": [
+            ["Polaris", "Yildun"], ["Yildun", "Epsilon UMi"], ["Epsilon UMi", "Zeta UMi"],
+            ["Zeta UMi", "Kochab"], ["Kochab", "Pherkad"], ["Pherkad", "Zeta UMi"]
+        ]
+    },
+    {
+        "name": "Crux",
+        "stars": [
+            {"ra": 186.65, "dec": -63.10, "mag": 0.8, "name": "Acrux"},
+            {"ra": 187.79, "dec": -57.11, "mag": 1.6, "name": "Gacrux"},
+            {"ra": 191.93, "dec": -59.69, "mag": 1.3, "name": "Becrux"},
+            {"ra": 183.79, "dec": -58.75, "mag": 2.8, "name": "Decrux"}
+        ],
+        "lines": [ ["Acrux", "Gacrux"], ["Becrux", "Decrux"] ]
+    },
+    {
+        "name": "Sagittarius",
+        "stars": [
+            {"ra": 276.04, "dec": -34.38, "mag": 2.0, "name": "Kaus Australis"},
+            {"ra": 283.81, "dec": -26.30, "mag": 2.7, "name": "Nunki"},
+            {"ra": 285.65, "dec": -29.88, "mag": 2.8, "name": "Ascella"},
+            {"ra": 275.25, "dec": -29.83, "mag": 2.6, "name": "Kaus Media"},
+            {"ra": 276.99, "dec": -25.42, "mag": 2.0, "name": "Kaus Borealis"}
+        ],
+        "lines": [
+            ["Kaus Australis", "Nunki"], ["Nunki", "Ascella"], ["Ascella", "Kaus Media"],
+            ["Kaus Media", "Kaus Borealis"], ["Kaus Borealis", "Nunki"], ["Ascella", "Kaus Borealis"]
+        ]
+    },
+    { "name": "Leo", "stars": [{"ra": 152.09, "dec": 11.97, "mag": 1.4, "name": "Regulus"}, {"ra": 177.26, "dec": 14.57, "mag": 2.1, "name": "Denebola"}, {"ra": 168.5, "dec": 20.52, "mag": 2.6, "name": "Zosma"}, {"ra": 155.0, "dec": 19.85, "mag": 2.9, "name": "Algieba"}, {"ra": 154.25, "dec": 23.42, "mag": 3.5, "name": "Adhafera"}, {"ra": 152.0, "dec": 29.85, "mag": 3.9, "name": "Rasalas"}], "lines": [["Regulus", "Adhafera"], ["Adhafera", "Algieba"], ["Algieba", "Rasalas"], ["Regulus", "Zosma"], ["Zosma", "Denebola"]] },
+    { "name": "Taurus", "stars": [{"ra": 68.98, "dec": 16.51, "mag": 0.8, "name": "Aldebaran"}, {"ra": 81.57, "dec": 28.61, "mag": 1.6, "name": "Elnath"}, {"ra": 76.7, "dec": 17.55, "mag": 3.4, "name": "Hyadum I"}, {"ra": 66.0, "dec": 9.02, "mag": 3.8, "name": "Ain"}], "lines": [["Hyadum I", "Aldebaran"], ["Aldebaran", "Ain"], ["Aldebaran", "Elnath"]] },
+    { "name": "Gemini", "stars": [{"ra": 113.65, "dec": 31.89, "mag": 1.6, "name": "Castor"}, {"ra": 116.33, "dec": 28.03, "mag": 1.1, "name": "Pollux"}, {"ra": 99.43, "dec": 16.40, "mag": 2.9, "name": "Alhena"}, {"ra": 91.9, "dec": 16.4, "mag": 3.5, "name": "Tejat"}], "lines": [["Castor", "Alhena"], ["Alhena", "Tejat"], ["Pollux", "Alhena"]] },
+    { "name": "Aries", "stars": [{"ra": 28.66, "dec": 20.81, "mag": 2.6, "name": "Sheratan"}, {"ra": 31.79, "dec": 23.46, "mag": 2.0, "name": "Hamal"}, {"ra": 28.38, "dec": 19.29, "mag": 3.6, "name": "Mesarthim"}], "lines": [["Hamal", "Sheratan"], ["Hamal", "Mesarthim"]] },
+    { "name": "Virgo", "stars": [{"ra": 201.30, "dec": -11.16, "mag": 1.0, "name": "Spica"}, {"ra": 190.41, "dec": -1.45, "mag": 2.8, "name": "Porrima"}, {"ra": 182.4, "dec": 17.53, "mag": 3.4, "name": "Auva"}, {"ra": 218.3, "dec": 3.4, "mag": 2.8, "name": "Vindemiatrix"}], "lines": [["Spica", "Porrima"], ["Porrima", "Auva"], ["Auva", "Vindemiatrix"], ["Vindemiatrix", "Spica"]] }
+]

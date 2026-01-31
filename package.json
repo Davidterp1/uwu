@@ -1,0 +1,22 @@
+{
+  "name": "solar-system-backend",
+  "version": "1.0.0",
+  "description": "Backend server for the 3D Solar System project.",
+  "main": "server.js",
+  "scripts": {
+    "server": "node server.js",
+    "dev": "concurrently \"npm run server\" \"live-server --port=3000\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1",
+    "live-server": "^1.2.2"
+  }
+}

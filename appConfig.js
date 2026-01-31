@@ -1,0 +1,41 @@
+import { getAssetUrl } from './utils.js';
+
+// --- Base de cálculo para velocidades orbitales ---
+// Usamos la ley de la velocidad orbital (v ∝ 1/√r) para que las velocidades sean más realistas.
+// 1. Definimos una velocidad base para la Tierra.
+const earthOrbitRadius = 18;
+const earthOrbitalSpeed = 1.0; // Velocidad de referencia para la Tierra.
+
+// 2. Calculamos una constante de velocidad (k) basada en la Tierra: k = v * √r
+const velocityConstant = earthOrbitalSpeed * Math.sqrt(earthOrbitRadius);
+
+/**
+ * Calcula la velocidad orbital de un planeta basándose en su radio orbital.
+ * La fórmula se deriva de la ley de la velocidad orbital, asegurando que los planetas más lejanos se muevan más lentamente.
+ * @param {number} orbitRadius - El radio de la órbita del cuerpo celestial.
+ * @returns {number} La velocidad orbital calculada.
+ */
+const calculateOrbitalSpeed = (orbitRadius) => velocityConstant / Math.sqrt(orbitRadius);
+
+// Array que contiene los datos de configuración para cada planeta del sistema solar.
+export const planets = [
+    { name: 'Sol', mass: '1.989 × 10^30 kg', radius: '696,340 km', color: 0xFFFF00, size: 10, description: 'La estrella en el centro de nuestro sistema solar, compuesta principalmente de hidrógeno y helio.', rotationSpeed: 0.05, rotationPeriod: 'Aprox. 27 días', texture: getAssetUrl('recursos/sun.jpg') },
+    { name: 'Mercurio', mass: '3.301 × 10^23 kg', radius: '2,439.7 km', color: 0x808080, size: 0.38, orbitRadius: 12, eccentricity: 0.4, description: 'El planeta más pequeño y cercano al Sol.', orbitalSpeed: calculateOrbitalSpeed(12), rotationSpeed: 0.1, rotationPeriod: '58.6 días', texture: getAssetUrl('recursos/mercury.jpg'), axialTilt: 0.03, composition: 'Rocoso', temperature: '167°C', atmosphere: 'Muy delgada (oxígeno, sodio, hidrógeno)', funFact: 'Un día en Mercurio (176 días terrestres) es más largo que su año (88 días terrestres).', exploration: 'Mariner 10, MESSENGER, BepiColombo.' },
+    { name: 'Venus', mass: '4.867 × 10^24 kg', radius: '6,051.8 km', color: 0xF8E473, size: 0.95, orbitRadius: 15, eccentricity: 0.2, description: 'Planeta con una atmósfera densa y efecto invernadero extremo.', orbitalSpeed: -calculateOrbitalSpeed(15), rotationSpeed: -0.05, rotationPeriod: '243 días (retrógrado)', texture: getAssetUrl('recursos/venus.jpg'), axialTilt: 177.4, composition: 'Rocoso', temperature: '464°C', atmosphere: 'Densa (dióxido de carbono)', funFact: 'Gira en sentido contrario a la mayoría de los planetas (rotación retrógrada).', exploration: 'Venera, Magellan, Venus Express.' },
+    { name: 'Tierra', mass: '5.972 × 10^24 kg', radius: '6,371 km', color: 0x4682B4, size: 1.0, orbitRadius: 18, eccentricity: 0.3, description: 'Nuestro hogar, con vida y agua líquida.', orbitalSpeed: earthOrbitalSpeed, rotationSpeed: 1, rotationPeriod: '23.9 horas', texture: getAssetUrl('recursos/earth.jpg'), axialTilt: 23.44, composition: 'Rocoso', temperature: '15°C', atmosphere: 'Nitrógeno, Oxígeno', funFact: 'Es el único planeta conocido con vida.', satellites: '1 (La Luna)', exploration: '¡Estamos aquí!' },
+    { name: 'Marte', mass: '6.39 × 10^23 kg', radius: '3,389.5 km', color: 0xB22222, size: 0.53, orbitRadius: 22, eccentricity: 0.4, description: 'El Planeta Rojo, con casquetes polares y óxido de hierro.', orbitalSpeed: calculateOrbitalSpeed(22), rotationSpeed: 0.97, rotationPeriod: '24.6 horas', texture: getAssetUrl('recursos/mars.jpg'), axialTilt: 25.19, composition: 'Rocoso', temperature: '-65°C', atmosphere: 'Delgada (dióxido de carbono)', funFact: 'Tiene el volcán más grande del sistema solar, el Monte Olimpo.', satellites: '2 (Fobos y Deimos)', exploration: 'Rovers (Curiosity, Perseverance), Viking.' },
+    { name: 'Júpiter', mass: '1.898 × 10^27 kg', radius: '69,911 km', color: 0xD2B48C, size: 4.0, orbitRadius: 36, eccentricity: 0.2, description: 'El gigante gaseoso más grande, con su Gran Mancha Roja.', orbitalSpeed: calculateOrbitalSpeed(36), rotationSpeed: 2.4, rotationPeriod: '9.9 horas', texture: getAssetUrl('recursos/Jupiter.png'), axialTilt: 3.13, composition: 'Gaseoso', temperature: '-110°C (nubes)', atmosphere: 'Hidrógeno, Helio', funFact: 'La Gran Mancha Roja es una tormenta más grande que la Tierra.', satellites: 'Más de 80 (Ío, Europa, Ganimedes, Calisto)', exploration: 'Voyager, Galileo, Juno.' },
+    { name: 'Saturno', mass: '5.683 × 10^26 kg', radius: '58,232 km', color: 0xDAA520, size: 3.5, orbitRadius: 48, eccentricity: 0.3, description: 'Famoso por sus anillos de hielo y roca.', ring: { innerRadius: 0.2, outerRadius: 1.2 }, orbitalSpeed: calculateOrbitalSpeed(48), rotationSpeed: 2.2, rotationPeriod: '10.7 horas', texture: getAssetUrl('recursos/saturn.jpg'), ringTexture: getAssetUrl('recursos/sring.png'), axialTilt: 26.73, composition: 'Gaseoso', temperature: '-140°C (nubes)', atmosphere: 'Hidrógeno, Helio', funFact: 'Es menos denso que el agua; si hubiera una bañera lo suficientemente grande, flotaría.', satellites: 'Más de 80 (Titán, Encélado)', exploration: 'Pioneer 11, Voyager, Cassini.' },
+    { name: 'Urano', mass: '8.681 × 10^25 kg', radius: '25,362 km', color: 0xADD8E6, size: 2.0, orbitRadius: 57, eccentricity: 0.4, description: 'Un gigante de hielo con rotación lateral.', ring: { innerRadius: 0.1, outerRadius: 0.4 }, orbitalSpeed: -calculateOrbitalSpeed(57), rotationSpeed: -1.4, rotationPeriod: '17.2 horas (retrógrado)', texture: getAssetUrl('recursos/uranus.jpg'), ringTexture: getAssetUrl('recursos/uring.png'), axialTilt: 97.77, composition: 'Gigante de hielo', temperature: '-195°C (nubes)', atmosphere: 'Hidrógeno, Helio, Metano', funFact: 'Gira de lado, con su eje de rotación casi paralelo al plano de su órbita.', satellites: '27 conocidos', exploration: 'Voyager 2.' },
+    { name: 'Neptuno', mass: '1.024 × 10^26 kg', radius: '24,622 km', color: 0x00008B, size: 1.9, orbitRadius: 67, eccentricity: 0.2, description: 'El planeta más distante, frío y ventoso.', orbitalSpeed: calculateOrbitalSpeed(67), rotationSpeed: 1.5, rotationPeriod: '16.1 horas', texture: getAssetUrl('recursos/neptune.jpg'), axialTilt: 28.32, composition: 'Gigante de hielo', temperature: '-200°C (nubes)', atmosphere: 'Hidrógeno, Helio, Metano', funFact: 'Tiene los vientos más rápidos del sistema solar (hasta 2,100 km/h).', satellites: '14 conocidos', exploration: 'Voyager 2.' },
+    { name: 'Plutón', mass: '1.309 × 10^22 kg', radius: '1,188.3 km', color: 0xA52A2A, size: 0.2, orbitRadius: 77, eccentricity: 0.6, description: 'Planeta enano helado del Cinturón de Kuiper.', orbitalSpeed: calculateOrbitalSpeed(77), rotationSpeed: 0.15, rotationPeriod: '6.4 días (retrógrado)', texture: getAssetUrl('recursos/pluto.png'), axialTilt: 122.53, composition: 'Helado', temperature: '-229°C', atmosphere: 'Delgada (nitrógeno, metano)', funFact: 'Tiene una gran región en forma de corazón en su superficie.', satellites: '5 (Caronte)', exploration: 'New Horizons.' }
+];
+
+// Objeto que contiene los datos de configuración para la Luna.
+export const moonData = { name: 'Luna', mass: '7.342 × 10^22 kg', radius: '1,737.4 km', color: 0xD3D3D3, size: 0.27, orbitRadius: 1.5, description: 'El satélite natural de la Tierra.', rotationPeriod: '27.3 días (sincrónica)', texture: getAssetUrl('recursos/moon.jpg'), composition: 'Rocoso', temperature: '-20°C', atmosphere: 'Casi inexistente', funFact: 'No tiene luz propia, refleja la del Sol.', exploration: 'Misiones Apolo, Luna, Chang\'e.' };
+
+// Define el radio utilizado para la esfera de las constelaciones.
+export const CONSTELLATION_RADIUS = 2000;
+
+// Lista de las constelaciones más famosas para ser destacadas o utilizadas en la aplicación.
+export const famousConstellations = ['Orión', 'Osa Mayor', 'Osa Menor', 'Casiopea', 'Cruz del Sur', 'Escorpio', 'Sagitario', 'Leo', 'Tauro', 'Géminis', 'Aries', 'Virgo'];

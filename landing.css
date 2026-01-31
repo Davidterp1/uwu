@@ -1,0 +1,234 @@
+/* --- VARIABLES Y RESET --- */
+:root {
+    --color-fondo: #050505;
+    --texto-principal: #ffffff;
+    --texto-tenue: #a0a0a0;
+    --color-acento: #00f3ff;
+    --acento-secundario: #bc13fe;
+    --fondo-cristal: rgba(10, 20, 40, 0.6);
+    --borde-cristal: rgba(0, 243, 255, 0.3);
+    --fuente-titulo: 'Orbitron', sans-serif;
+    --fuente-cuerpo: 'Rajdhani', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--fuente-cuerpo);
+    background-color: var(--color-fondo);
+    color: var(--texto-principal);
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* --- FONDO ESPACIAL --- */
+.fondo-espacial {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+    overflow: hidden;
+}
+
+/* Estrellas animadas */
+.estrellas {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: transparent;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    animation: aumentar 50s infinite linear;
+    opacity: 0.6;
+}
+
+@keyframes aumentar {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
+/* --- BARRA DE NAVEGACIÓN (NAVBAR) --- */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 20px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(5, 5, 10, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--borde-cristal);
+    z-index: 1000;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+}
+
+.logo {
+    font-family: var(--fuente-titulo);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, var(--color-acento), #fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--texto-principal);
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: var(--color-acento);
+    text-shadow: 0 0 8px var(--color-acento);
+}
+
+/* --- SECCIÓN PORTADA (HERO) --- */
+.portada {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.portada h1 {
+    font-family: var(--fuente-titulo);
+    font-size: 5rem;
+    margin-bottom: 20px;
+    line-height: 1.1;
+    text-shadow: 0 0 20px rgba(0, 243, 255, 0.4), 0 0 40px rgba(188, 19, 254, 0.2);
+}
+
+.portada h1 span {
+    display: block;
+    font-size: 1.2rem;
+    color: var(--color-acento);
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+}
+
+.portada p {
+    font-size: 1.4rem;
+    color: var(--texto-tenue);
+    max-width: 700px;
+    margin-bottom: 40px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.boton-accion {
+    font-family: var(--fuente-titulo);
+    padding: 25px 80px;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--color-fondo);
+    background: var(--color-acento);
+    border: 2px solid var(--color-acento);
+    border-radius: 5px;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    animation: pulsar 2s infinite;
+}
+
+.boton-accion:hover {
+    color: var(--color-fondo);
+    box-shadow: 0 0 60px rgba(0, 243, 255, 1);
+    transform: scale(1.1);
+    animation: none;
+}
+
+
+@keyframes pulsar {
+    0% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.6); transform: scale(1); }
+    50% { box-shadow: 0 0 60px rgba(0, 243, 255, 0.9); transform: scale(1.05); }
+    100% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.6); transform: scale(1); }
+}
+
+/* --- CARACTERÍSTICAS --- */
+.caracteristicas {
+    padding: 100px 50px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.tarjeta {
+    background: var(--fondo-cristal);
+    border: 1px solid var(--borde-cristal);
+    padding: 30px;
+    border-radius: 10px;
+    transition: transform 0.3s, background 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.tarjeta:hover {
+    transform: translateY(-10px);
+    background: rgba(0, 243, 255, 0.05);
+    border-color: var(--color-acento);
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+}
+
+.tarjeta h3 {
+    font-family: var(--fuente-titulo);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: var(--color-acento);
+    text-transform: uppercase;
+}
+
+.tarjeta p {
+    color: var(--texto-tenue);
+}
+
+
+@media (max-width: 768px) {
+    .portada h1 { font-size: 2.5rem; }
+    header { padding: 20px; justify-content: center; }
+    nav { display: none; }
+}
+.caracteristicas :nth-child(5){
+ background: var(--fondo-cristal);
+    border: 1px solid var(--borde-cristal);
+    padding: 30px;
+    border-radius: 10px;
+    transition: transform 0.3s, background 0.3s;
+    position: relative;
+    left: 375px;
+}

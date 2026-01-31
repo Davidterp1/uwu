@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="icon" type="image/jpeg" href="./earth.jpg">
-
-<link rel=stylesheet href="style.css">
-<!-- Importa mapa para Three.js modulo -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Inicio de Sesión - Sistema Solar 3D</title>
+  <link rel="stylesheet" href="app.css">
 </head>
 <body>
     <div class="menu-container">
@@ -14,48 +12,51 @@
         <span></span>
         <span></span>
       </button>
-      <div class="dropdown-content">
-        <a href="index.html">Inicio</a>
-        <a href="registro.html">Registro</a>
-        <a href="inicioSesion.html">Inicio de sesión</a>
+     <div class="dropdown-content">
+        <!-- El contenido del menú se genera dinámicamente -->
     </div>
   </div>
-    <audio src="recursos/inter.mp3" autoplay loop></audio>
-       <video id="background-video" autoplay loop muted >
-  <source src="recursos/uwu.mp4" type="video/mp4">
-</video>
-  <div id="login-container">
+   <video id="background-video" autoplay loop muted >
+    <source src="recursos/uwu.mp4" type="video/mp4">
+  </video>
+  <audio src="recursos/inter.mp3" autoplay loop></audio> 
+
+   <div id="register-container">
+    <div id="message-container"></div>
     <h2>Iniciar Sesión</h2>
     <form id="login-form">
         <label for="username">Nombre de usuario:</label>
         <input type="text" id="username" name="username" required>
         <label for="password">Contraseña:</label>
         <input type="password" id="password" name="password" required>
-        <button type="submit">Ingresar</button>
+        <button type="submit">Iniciar Sesión</button>
+        <p class="form-link">¿No tienes cuenta? <a href="registro.html">Regístrate</a></p>
     </form>
-</div>
-<script>
-      // Lógica para el menú desplegable
-      function setupMainMenu() {
-        const toggleBtn = document.querySelector('.menu-toggle');
-        const content = document.querySelector('.dropdown-content');
+</div> 
 
-        if (!toggleBtn || !content) return;
+<script type="module">
+    import { initMenu } from './menu.js';
+    import { loginUser } from './auth.js';
 
-        toggleBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          content.classList.toggle('show');
-        });
+    initMenu(false);
 
-        window.addEventListener('click', (e) => {
-          if (content.classList.contains('show') && !toggleBtn.contains(e.target)) {
-            content.classList.remove('show');
-          }
-        });
-      }
-      setupMainMenu();
-    </script>
- 
-    
+    const messageContainer = document.getElementById('message-container');
+    const form = document.getElementById('login-form');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = form.username.value;
+        const password = form.password.value;
+
+        const result = await loginUser(username, password);
+
+        if (result.success) {
+            window.location.href = 'index.html'; // Redirigir a la página principal
+        } else {
+            messageContainer.textContent = `Error: ${result.message}`;
+            messageContainer.className = 'error show';
+        }
+    });
+</script>
 </body>
 </html>

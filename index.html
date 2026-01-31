@@ -3,19 +3,31 @@
 <head>
 <title>Solar System 3D</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/jpeg" href="recursos/earth.jpg">
+<link rel="icon" type="image/x-icon" href="recursos/earth.jpg">
 <link rel=stylesheet href="style.css">
-<script type="importmap">
+<script type="importmap" >
     {
         "imports": {
             "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
             "three/examples/jsm/controls/PointerLockControls.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/PointerLockControls.js",
-            "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js"
+            "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/loaders/GLTFLoader.js",
+            "three/examples/jsm/objects/Lensflare.js": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/objects/Lensflare.js"
         }
     }
 </script>
 </head>
 <body>
+  <div class="menu-container">
+    <button class="menu-toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="dropdown-content">
+      <!-- El contenido del menú se genera dinámicamente desde userInterface.js -->
+    </div>
+  </div>
+
   <div id="loading-screen">
     <div class="loading-content">
         <h1>Cargando Universo...</h1>
@@ -26,18 +38,6 @@
     </div>
   </div>
   <audio src="recursos/inter.mp3" autoplay loop></audio>
-  <div class="menu-container">
-    <button class="menu-toggle">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    <div class="dropdown-content">
-        <a href="index.html">Inicio</a>
-        <a href="registro.html">Registro</a>
-        <a href="inicioSesion.html">Inicio de sesión</a>
-    </div>
-  </div>
 
   <div id="constellation-modal" class="modal">
     <div class="modal-content">
@@ -50,19 +50,44 @@
 
   <div id="planet-stats">
     <span class="close">&times;</span>
-    <h3 id="stats-name"></h3>
+    <div class="stats-header">
+      <h3 id="stats-name"></h3>
+      <button id="favorite-btn" title="Añadir a Favoritos">☆</button>    </div>
     <div class="stats-grid">
       <p id="stats-distance"><span>Distancia al Sol</span><span>-</span></p>
       <p id="stats-speed"><span>Velocidad orbital</span><span>-</span></p>
     </div>
     <p id="stats-description" class="description"></p>
+    <div class="stats-comparison">
+      <h4>Comparación de Tamaño (con la Tierra)</h4>
+      <div id="size-comparison-container">
+      </div>
+    </div>
     <div id="stats-extra-info"></div>
   </div>
   
   <!-- Botón para reabrir la ayuda -->
   <div id="help-icon-container">
-    <button id="home-btn" title="Volver al Sol">☀️</button>
     <button id="open-help-btn" title="Mostrar Ayuda">?</button>
+    <button id="home-btn" title="Volver al Sol">☀️</button>
+    <button id="constellation-toggle-btn" title="Mostrar/Ocultar Constelaciones">✨</button>
+  </div>
+
+  <!-- Contenedor para el control de volumen -->
+  <div id="volume-container">
+    <div id="volume-slider-popup">
+      <input type="range" id="volume-slider" min="0" max="100" value="50">
+    </div>
+    <button id="volume-toggle-btn" title="Ajustar Volumen">🔊</button>
+  </div>
+
+  <!-- Controles de Tiempo Curvos -->
+  <div id="time-slider-container">
+    <svg id="time-slider-track" viewBox="0 0 200 100">
+        <path id="time-slider-path" d="M 20 20 A 100 60 0 0 0 180 20" />
+    </svg>
+    <div id="time-slider-handle"></div>
+    <div class="time-display">x<span id="time-scale-display">1</span></div>
   </div>
 
   <!-- Panel de Ayuda / Tutorial -->
@@ -72,19 +97,33 @@
       <h2>Bienvenido al Explorador Cósmico</h2>
       <p>Aquí tienes unos consejos para empezar:</p>
       <ul>
-        <li>Haz <strong>clic en la pantalla</strong> para activar el modo de vuelo (aparecerá una mirilla).</li>
-        <li>Usa el <strong>ratón</strong> para mirar a tu alrededor.</li>
-        <li>Usa <strong>W, A, S, D</strong> para moverte, <strong>Espacio</strong> para subir y <strong>Shift</strong> para bajar.</li>
-        <li><strong>Apunta</strong> con la mirilla a un planeta o constelación para ver su información.</li>
-        <li>Presiona <strong>Esc</strong> para liberar el ratón y poder usar los menús.</li>
+        <li>Haz <strong>clic en la pantalla</strong> para activar el modo de vuelo libre.</li>
+        <li>Usa el <strong>ratón</strong> para mirar y las teclas <strong>W, A, S, D</strong> para moverte. <strong>Espacio</strong> para subir y <strong>Shift</strong> para bajar.</li>
+        <li>Apunta con la mirilla a un planeta. <strong>Mantén la vista</strong> para que la cámara lo siga automáticamente.</li>
+        <li>Usa los botones de la esquina inferior izquierda para <strong>mostrar ayuda (?)</strong>, volver al <strong>Sol (☀️)</strong> o activar las <strong>constelaciones (✨)</strong>.</li>
+        <li>Ajusta el volumen con el control <strong>🔊</strong> en la esquina inferior derecha.</li>
+        <li>Presiona <strong>Esc</strong> para liberar el ratón y acceder a los menús.</li>
       </ul>
       <button id="close-help-btn">¡Entendido!</button>
     </div>
   </div>
 
   <!-- Mirilla para el modo de vuelo -->
-  <div id="crosshair">+</div>
+  <div id="crosshair">
+    <svg width="10" height="10" viewBox="0 0 30 30">
+      <circle class="crosshair-outer" cx="15" cy="15" r="12" stroke-width="1.5" fill="none" />
+      <circle class="crosshair-inner" cx="15" cy="15" r="1" fill-opacity="0.8" />
+    </svg>
+  </div>
 
-  <script type="module" src="script.js"></script>
+  <!-- Indicador de carga circular para el zoom -->
+  <div id="zoom-indicator" class="hidden">
+      <svg width="40" height="40" viewBox="0 0 40 40">
+          <circle class="zoom-indicator-bg" cx="20" cy="20" r="15" />
+          <circle class="zoom-indicator-progress" cx="20" cy="20" r="15" />
+      </svg>
+  </div>
+
+  <script type="module" src="main.js"></script>
 </body>
 </html>
